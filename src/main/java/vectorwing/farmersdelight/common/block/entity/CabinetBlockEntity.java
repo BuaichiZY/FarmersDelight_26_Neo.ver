@@ -1,10 +1,8 @@
 package vectorwing.farmersdelight.common.block.entity;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.Vec3i;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -19,11 +17,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.ContainerOpenersCounter;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import vectorwing.farmersdelight.FarmersDelight;
 import vectorwing.farmersdelight.common.block.CabinetBlock;
 import vectorwing.farmersdelight.common.registry.ModBlockEntityTypes;
@@ -33,7 +34,7 @@ import vectorwing.farmersdelight.common.utility.TextUtils;
 @EventBusSubscriber(modid = FarmersDelight.MODID)
 public class CabinetBlockEntity extends RandomizableContainerBlockEntity
 {
-	private NonNullList<ItemStack> contents = NonNullList.withSize(27, ItemStack.EMPTY);
+	private final CabinetStorage automationHandler;
 	private ContainerOpenersCounter openersCounter = new ContainerOpenersCounter()
 	{
 		protected void onOpen(Level level, BlockPos pos, BlockState state) {
@@ -49,7 +50,7 @@ public class CabinetBlockEntity extends RandomizableContainerBlockEntity
 		protected void openerCountChanged(Level level, BlockPos pos, BlockState sta, int arg1, int arg2) {
 		}
 
-		protected boolean isOwnContainer(Player p_155060_) {
+		public boolean isOwnContainer(Player p_155060_) {
 			if (p_155060_.containerMenu instanceof ChestMenu) {
 				Container container = ((ChestMenu) p_155060_.containerMenu).getContainer();
 				return container == CabinetBlockEntity.this;
@@ -61,32 +62,34 @@ public class CabinetBlockEntity extends RandomizableContainerBlockEntity
 
 	public CabinetBlockEntity(BlockPos pos, BlockState state) {
 		super(ModBlockEntityTypes.CABINET.get(), pos, state);
+		this.automationHandler = new CabinetStorage(getContainerSize());
 	}
 
 	@SubscribeEvent
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
 		event.registerBlockEntity(
-				Capabilities.ItemHandler.BLOCK,
+				Capabilities.Item.BLOCK,
 				ModBlockEntityTypes.CABINET.get(),
-				(be, context) -> new InvWrapper(be)
+				(be, context) -> be.automationHandler
 		);
 	}
 
 	@Override
-	public void saveAdditional(CompoundTag compound, HolderLookup.Provider registries) {
-		super.saveAdditional(compound, registries);
-		if (!trySaveLootTable(compound)) {
-			ContainerHelper.saveAllItems(compound, contents, registries);
+	protected void saveAdditional(ValueOutput output) {
+		super.saveAdditional(output);
+		if (getLootTable() == null) {
+			ContainerHelper.saveAllItems(output, automationHandler.stacks());
 		}
 	}
 
 	@Override
-	public void loadAdditional(CompoundTag compound, HolderLookup.Provider registries) {
-		super.loadAdditional(compound, registries);
-		contents = NonNullList.withSize(getContainerSize(), ItemStack.EMPTY);
-		if (!tryLoadLootTable(compound)) {
-			ContainerHelper.loadAllItems(compound, contents, registries);
+	protected void loadAdditional(ValueInput input) {
+		super.loadAdditional(input);
+		NonNullList<ItemStack> contents = NonNullList.withSize(getContainerSize(), ItemStack.EMPTY);
+		if (getLootTable() == null) {
+			ContainerHelper.loadAllItems(input, contents);
 		}
+		automationHandler.replaceStacks(contents);
 	}
 
 	@Override
@@ -96,12 +99,12 @@ public class CabinetBlockEntity extends RandomizableContainerBlockEntity
 
 	@Override
 	protected NonNullList<ItemStack> getItems() {
-		return contents;
+		return automationHandler.stacks();
 	}
 
 	@Override
 	protected void setItems(NonNullList<ItemStack> itemsIn) {
-		contents = itemsIn;
+		automationHandler.replaceStacks(itemsIn);
 	}
 
 	@Override
@@ -116,7 +119,7 @@ public class CabinetBlockEntity extends RandomizableContainerBlockEntity
 
 	public void startOpen(Player pPlayer) {
 		if (level != null && !this.remove && !pPlayer.isSpectator()) {
-			this.openersCounter.incrementOpeners(pPlayer, level, this.getBlockPos(), this.getBlockState());
+			this.openersCounter.incrementOpeners(pPlayer, level, this.getBlockPos(), this.getBlockState(), pPlayer.blockInteractionRange());
 		}
 	}
 
@@ -141,10 +144,43 @@ public class CabinetBlockEntity extends RandomizableContainerBlockEntity
 	private void playSound(BlockState state, SoundEvent sound) {
 		if (level == null) return;
 
-		Vec3i cabinetFacingVector = state.getValue(CabinetBlock.FACING).getNormal();
+		Vec3i cabinetFacingVector = state.getValue(CabinetBlock.FACING).getUnitVec3i();
 		double x = (double) worldPosition.getX() + 0.5D + (double) cabinetFacingVector.getX() / 2.0D;
 		double y = (double) worldPosition.getY() + 0.5D + (double) cabinetFacingVector.getY() / 2.0D;
 		double z = (double) worldPosition.getZ() + 0.5D + (double) cabinetFacingVector.getZ() / 2.0D;
-		level.playSound(null, x, y, z, sound, SoundSource.BLOCKS, 0.5F, level.random.nextFloat() * 0.1F + 0.9F);
+		level.playSound(null, x, y, z, sound, SoundSource.BLOCKS, 0.5F, level.getRandom().nextFloat() * 0.1F + 0.9F);
+	}
+
+	/** Native NeoForge 26.1 transactional storage shared by automation and the cabinet container. */
+	private final class CabinetStorage extends ItemStacksResourceHandler
+	{
+		private CabinetStorage(int size) {
+			super(size);
+		}
+
+		private NonNullList<ItemStack> stacks() {
+			return stacks;
+		}
+
+		private void replaceStacks(NonNullList<ItemStack> newStacks) {
+			setStacks(newStacks);
+		}
+
+		@Override
+		public boolean isValid(int index, ItemResource resource) {
+			return !resource.isEmpty() && CabinetBlockEntity.this.canPlaceItem(index, resource.toStack());
+		}
+
+		@Override
+		protected int getCapacity(int index, ItemResource resource) {
+			return resource.isEmpty()
+					? CabinetBlockEntity.this.getMaxStackSize()
+					: CabinetBlockEntity.this.getMaxStackSize(resource.toStack());
+		}
+
+		@Override
+		protected void onContentsChanged(int index, ItemStack previousContents) {
+			CabinetBlockEntity.this.setChanged();
+		}
 	}
 }

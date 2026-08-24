@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -12,8 +13,9 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffectUtil;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.Consumable;
+import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import vectorwing.farmersdelight.FarmersDelight;
 
@@ -80,18 +82,21 @@ public class TextUtils
 	 * An alternate version of PotionUtils.addPotionTooltip, that obtains the item's food property potion effects instead.
 	 */
 	public static void addFoodEffectTooltip(ItemStack stack, Consumer<Component> tooltipAdder, float durationFactor, float tickRate) {
-		FoodProperties foodStats = stack.getFoodProperties(null);
-		if (foodStats == null) {
+		Consumable consumable = stack.get(DataComponents.CONSUMABLE);
+		if (consumable == null) {
 			return;
 		}
 
-		List<FoodProperties.PossibleEffect> effectList = foodStats.effects();
+		List<MobEffectInstance> effectList = consumable.onConsumeEffects().stream()
+				.filter(ApplyStatusEffectsConsumeEffect.class::isInstance)
+				.map(ApplyStatusEffectsConsumeEffect.class::cast)
+				.flatMap(effect -> effect.effects().stream())
+				.toList();
 		List<Pair<Holder<Attribute>, AttributeModifier>> attributeList = Lists.newArrayList();
 		MutableComponent mutableComponent;
 
 		if (!effectList.isEmpty()) {
-			for (FoodProperties.PossibleEffect possibleEffect : effectList) {
-				MobEffectInstance instance = possibleEffect.effect();
+			for (MobEffectInstance instance : effectList) {
 				mutableComponent = Component.translatable(instance.getDescriptionId());
 				MobEffect effect = instance.getEffect().value();
 				effect.createModifiers(instance.getAmplifier(), (attributeHolder, attributeModifier) -> {

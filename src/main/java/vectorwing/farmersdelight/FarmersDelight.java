@@ -8,6 +8,7 @@ import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.gametest.GameTestHooks;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import vectorwing.farmersdelight.client.event.ClientSetupEvents;
@@ -16,6 +17,7 @@ import vectorwing.farmersdelight.common.Configuration;
 import vectorwing.farmersdelight.common.registry.RegistryAliases;
 import vectorwing.farmersdelight.common.registry.*;
 import vectorwing.farmersdelight.common.world.VillageStructures;
+import vectorwing.farmersdelight.gametest.CoreGameTests;
 
 @Mod(FarmersDelight.MODID)
 public class FarmersDelight
@@ -25,7 +27,10 @@ public class FarmersDelight
 
 	public FarmersDelight(IEventBus modEventBus, ModContainer modContainer) {
 		modEventBus.addListener(CommonSetup::init);
-		if (FMLEnvironment.dist.isClient()) {
+		if (GameTestHooks.isGametestEnabled()) {
+			CoreGameTests.register(modEventBus);
+		}
+		if (FMLEnvironment.getDist().isClient()) {
 			modEventBus.addListener(ClientSetupEvents::init);
 			modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
 		}
@@ -44,6 +49,7 @@ public class FarmersDelight
 		ModBlockEntityTypes.TILES.register(modEventBus);
 		ModMenuTypes.MENU_TYPES.register(modEventBus);
 		ModRecipeTypes.RECIPE_TYPES.register(modEventBus);
+		ModRecipeBookCategories.RECIPE_BOOK_CATEGORIES.register(modEventBus);
 		ModRecipeSerializers.RECIPE_SERIALIZERS.register(modEventBus);
 		ModBiomeFeatures.FEATURES.register(modEventBus);
 		ModCreativeTabs.CREATIVE_TABS.register(modEventBus);

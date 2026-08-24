@@ -1,9 +1,11 @@
+import groovy.json.JsonOutput
+
 plugins {
     id 'java-library'
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '1.0.0'
+    id 'net.neoforged.moddev' version '2.0.144'
 }
 
 tasks.named('wrapper', Wrapper).configure {
@@ -14,6 +16,12 @@ version = "${minecraft_version}-${mod_version}"
 group = 'vectorwing.farmersdelight' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 
 repositories {
+    maven {
+        // Portable JEI runtime source; the upstream Maven may occasionally be unavailable.
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+        content { includeGroup "maven.modrinth" }
+    }
     maven {
         // JEI
         name = "Progwml6 maven"
@@ -35,15 +43,17 @@ base {
     archivesName = 'FarmersDelight'
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+
+def java25Launcher = javaToolchains.launcherFor {
+    languageVersion = JavaLanguageVersion.of(25)
+}
+tasks.withType(net.neoforged.nfrtgradle.NeoFormRuntimeTask).configureEach {
+    javaExecutable.set(java25Launcher.map { it.executablePath.asFile.absolutePath })
+}
 
 neoForge {
     version = project.neo_version
-
-    parchment {
-        mappingsVersion = project.parchment_mappings_version
-        minecraftVersion = project.parchment_minecraft_version
-    }
 
     // This line is optional. Access Transformers are automatically detected
     // accessTransformers = project.files('src/main/resources/META-INF/accesstransformer.cfg')
@@ -54,11 +64,17 @@ neoForge {
 
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+
+            // Optional automated local-server connection for integration tests.
+            if (providers.gradleProperty('quick_play_server').isPresent()) {
+                programArgument '--quickPlayMultiplayer'
+                programArgument providers.gradleProperty('quick_play_server').get()
+            }
         }
 
         server {
             server()
-//            programArgument '--nogui'
+            programArgument '--nogui'
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
 
@@ -71,7 +87,7 @@ neoForge {
         }
 
         data {
-            data()
+            clientData()
 
             // example of overriding the workingDirectory set in configureEach above, uncomment if you want to use it
             // gameDirectory = project.file('run-data')
@@ -91,7 +107,7 @@ neoForge {
             // Recommended logging level for the console
             // You can set various levels here.
             // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
-            logLevel = org.slf4j.event.Level.DEBUG
+            logLevel = org.slf4j.event.Level.INFO
         }
     }
 
@@ -102,9 +118,63 @@ neoForge {
     }
 }
 
+def generatedItemDefinitionsDir = layout.buildDirectory.dir('generated/item-definitions')
+
+def generateItemDefinitions = tasks.register('generateItemDefinitions') {
+    def legacyItemModels = fileTree('src/generated/resources/assets/farmersdelight/models/item') {
+        include '**/*.json'
+    }
+    def authoredItemDefinitions = file('src/main/resources/assets/farmersdelight/items')
+
+    inputs.files(legacyItemModels)
+    inputs.dir(authoredItemDefinitions)
+    outputs.dir(generatedItemDefinitionsDir)
+
+    doLast {
+        def outputRoot = generatedItemDefinitionsDir.get().asFile
+        delete(outputRoot)
+
+        legacyItemModels.files.sort { it.path }.each { modelFile ->
+            def modelRoot = file('src/generated/resources/assets/farmersdelight/models/item')
+            def relativePath = modelRoot.toPath().relativize(modelFile.toPath()).toString().replace('\\', '/')
+            if (new File(authoredItemDefinitions, relativePath).exists()) {
+                return
+            }
+
+            def itemId = relativePath.substring(0, relativePath.length() - '.json'.length())
+            def outputFile = new File(outputRoot, "assets/${mod_id}/items/${relativePath}")
+            outputFile.parentFile.mkdirs()
+            def definition = [model: [type: 'minecraft:model', model: "${mod_id}:item/${itemId}"]]
+            outputFile.setText(JsonOutput.prettyPrint(JsonOutput.toJson(definition)) + System.lineSeparator(), 'UTF-8')
+        }
+    }
+}
+
 sourceSets.main.resources {
     exclude(".cache")
     srcDir 'src/generated/resources'
+    srcDir generatedItemDefinitionsDir
+}
+
+tasks.named('processResources').configure {
+    dependsOn generateItemDefinitions
+}
+
+def enableOptionalIntegrations = providers.gradleProperty('enable_optional_integrations')
+        .map { it.toBoolean() }
+        .getOrElse(false)
+def enableDataGenerators = providers.gradleProperty('enable_data_generators')
+        .map { it.toBoolean() }
+        .getOrElse(false)
+
+sourceSets.main.java {
+    if (!enableOptionalIntegrations) {
+        exclude 'vectorwing/farmersdelight/integration/crafttweaker/**'
+        exclude 'vectorwing/farmersdelight/integration/emi/**'
+    }
+    if (!enableDataGenerators) {
+        exclude 'vectorwing/farmersdelight/data/**'
+    }
 }
 
 configurations {
@@ -112,22 +182,21 @@ configurations {
 }
 
 dependencies {
-    // JEI
-    compileOnly "mezz.jei:jei-${jei_minecraft}-common-api:${jei_version}"
-    compileOnly "mezz.jei:jei-${jei_minecraft}-neoforge-api:${jei_version}"
-//    localRuntime "mezz.jei:jei-${jei_minecraft}-neoforge:${jei_version}"
+    // Compile against and test with the official 26.1.2 JEI artifact.
+    // JEI remains optional for the distributed Farmer's Delight jar.
+    def jeiDependency = "maven.modrinth:jei:${jei_modrinth_version}"
+    compileOnly jeiDependency
+    localRuntime jeiDependency
 
-    // EMI
-    compileOnly "dev.emi:emi-neoforge:${emi_version}:api"
-    runtimeOnly "dev.emi:emi-neoforge:${emi_version}"
+    if (enableOptionalIntegrations) {
+        // These coordinates target the upstream 1.21 branch and remain disabled
+        // until each integration publishes and is migrated for Minecraft 26.1.2.
+        compileOnly "dev.emi:emi-neoforge:${emi_version}:api"
+        compileOnly "squeek.appleskin:appleskin-neoforge:${appleskin_version}:api"
 
-    // AppleSkin
-    compileOnly "squeek.appleskin:appleskin-neoforge:${appleskin_version}:api"
-    runtimeOnly "squeek.appleskin:appleskin-neoforge:${appleskin_version}"
-
-    def ctDep = "com.blamejared.crafttweaker:CraftTweaker-neoforge-${crafttweaker_minecraft}:${crafttweaker_version}"
-    compileOnly ctDep
-    runtimeOnly ctDep
+        def ctDep = "com.blamejared.crafttweaker:CraftTweaker-neoforge-${crafttweaker_minecraft}:${crafttweaker_version}"
+        compileOnly ctDep
+    }
 }
 
 tasks.withType(ProcessResources).configureEach {
@@ -166,6 +235,7 @@ publishing {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+    options.compilerArgs.addAll(['-Xmaxerrs', '2000'])
 }
 
 idea {

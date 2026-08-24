@@ -2,14 +2,17 @@ package vectorwing.farmersdelight.client.particle;
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.util.RandomSource;
 
 import javax.annotation.Nonnull;
 
-public class SteamParticle extends TextureSheetParticle
+public class SteamParticle extends SingleQuadParticle
 {
-	protected SteamParticle(ClientLevel level, double x, double y, double z, double motionX, double motionY, double motionZ) {
-		super(level, x, y, z);
+	protected SteamParticle(ClientLevel level, double x, double y, double z, double motionX, double motionY,
+			double motionZ, TextureAtlasSprite sprite) {
+		super(level, x, y, z, sprite);
 		this.scale(2.0F);
 		this.setSize(0.25F, 0.25F);
 
@@ -23,8 +26,8 @@ public class SteamParticle extends TextureSheetParticle
 
 	@Override
 	@Nonnull
-	public ParticleRenderType getRenderType() {
-		return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+	protected Layer getLayer() {
+		return Layer.TRANSLUCENT;
 	}
 
 	public void tick() {
@@ -53,10 +56,10 @@ public class SteamParticle extends TextureSheetParticle
 		}
 
 		@Override
-		public Particle createParticle(SimpleParticleType type, ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-			SteamParticle particle = new SteamParticle(level, x, y + 0.3D, z, xSpeed, ySpeed, zSpeed);
+		public Particle createParticle(SimpleParticleType type, ClientLevel level, double x, double y, double z,
+				double xSpeed, double ySpeed, double zSpeed, RandomSource random) {
+			SteamParticle particle = new SteamParticle(level, x, y + 0.3D, z, xSpeed, ySpeed, zSpeed, this.spriteSet.get(random));
 			particle.setAlpha(0.6F);
-			particle.pickSprite(this.spriteSet);
 			return particle;
 		}
 	}

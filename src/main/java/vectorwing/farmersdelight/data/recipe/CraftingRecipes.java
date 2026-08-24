@@ -1,6 +1,6 @@
 package vectorwing.farmersdelight.data.recipe;
 
-import net.minecraft.advancements.critereon.InventoryChangeTrigger;
+import net.minecraft.advancements.criterion.InventoryChangeTrigger;
 import net.minecraft.data.recipes.*;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
@@ -153,7 +153,7 @@ public class CraftingRecipes
 				.pattern("X X")
 				.pattern("w#w")
 				.pattern("w#w")
-				.define('X', Items.CHAIN)
+				.define('X', Items.IRON_CHAIN)
 				.define('w', ItemTags.LOGS)
 				.define('#', ModItems.CANVAS.get())
 				.unlockedBy("has_canvas", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.CANVAS.get()))

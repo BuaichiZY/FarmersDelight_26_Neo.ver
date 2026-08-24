@@ -1,12 +1,10 @@
 package vectorwing.farmersdelight.client.event;
 
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffectUtil;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.neoforged.api.distmarker.Dist;
@@ -35,19 +33,16 @@ public class TooltipEvents
 			return;
 		}
 
-		FoodProperties soupEffects = FoodValues.VANILLA_SOUP_EFFECTS.get(food);
+		MobEffectInstance effectInstance = FoodValues.VANILLA_SOUP_EFFECTS.get(food);
 
-		if (soupEffects != null) {
+		if (effectInstance != null) {
 			List<Component> tooltip = event.getToolTip();
-			for (FoodProperties.PossibleEffect effect : soupEffects.effects()) {
-				MobEffectInstance effectInstance = effect.effect();
-				MutableComponent effectText = Component.translatable(effectInstance.getDescriptionId());
-				Player player = event.getEntity();
-				if (effectInstance.getDuration() > 20) {
-					effectText = Component.translatable("potion.withDuration", effectText, MobEffectUtil.formatDuration(effectInstance, 1, player == null ? 20 : player.level().tickRateManager().tickrate()));
-				}
-				tooltip.add(effectText.withStyle(effectInstance.getEffect().value().getCategory().getTooltipFormatting()));
+			MutableComponent effectText = Component.translatable(effectInstance.getDescriptionId());
+			Player player = event.getEntity();
+			if (effectInstance.getDuration() > 20) {
+				effectText = Component.translatable("potion.withDuration", effectText, MobEffectUtil.formatDuration(effectInstance, 1, player == null ? 20 : player.level().tickRateManager().tickrate()));
 			}
+			tooltip.add(effectText.withStyle(effectInstance.getEffect().value().getCategory().getTooltipFormatting()));
 		}
 	}
 }

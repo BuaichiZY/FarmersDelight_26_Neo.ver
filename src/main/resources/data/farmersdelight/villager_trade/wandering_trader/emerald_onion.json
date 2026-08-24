@@ -1,0 +1,8 @@
+{
+  "neoforge:conditions": [{ "type": "farmersdelight:wandering_trader_trades_enabled" }],
+  "wants": { "id": "minecraft:emerald" },
+  "gives": { "id": "farmersdelight:onion" },
+  "max_uses": 1,
+  "xp": 12,
+  "reputation_discount": 0.05
+}

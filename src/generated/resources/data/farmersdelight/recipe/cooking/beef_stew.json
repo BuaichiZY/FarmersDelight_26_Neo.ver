@@ -2,15 +2,9 @@
   "type": "farmersdelight:cooking",
   "experience": 1.0,
   "ingredients": [
-    {
-      "tag": "c:foods/raw_beef"
-    },
-    {
-      "tag": "c:crops/carrot"
-    },
-    {
-      "tag": "c:crops/potato"
-    }
+    "#c:foods/raw_beef",
+    "#c:crops/carrot",
+    "#c:crops/potato"
   ],
   "recipe_book_tab": "meals",
   "result": {

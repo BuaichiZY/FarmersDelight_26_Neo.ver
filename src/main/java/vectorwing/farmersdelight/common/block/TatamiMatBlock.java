@@ -3,6 +3,7 @@ package vectorwing.farmersdelight.common.block;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -11,6 +12,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -60,11 +62,11 @@ public class TatamiMatBlock extends HorizontalDirectionalBlock
 	}
 
 	@Override
-	public BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor level, BlockPos currentPos, BlockPos facingPos) {
+	protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess ticks, BlockPos currentPos, Direction facing, BlockPos facingPos, BlockState facingState, RandomSource random) {
 		if (facing == getDirectionToOther(state.getValue(PART), state.getValue(FACING))) {
 			return state.canSurvive(level, currentPos) && facingState.is(this) && facingState.getValue(PART) != state.getValue(PART) ? state : Blocks.AIR.defaultBlockState();
 		} else {
-			return !state.canSurvive(level, currentPos) ? Blocks.AIR.defaultBlockState() : super.updateShape(state, facing, facingState, level, currentPos, facingPos);
+			return !state.canSurvive(level, currentPos) ? Blocks.AIR.defaultBlockState() : super.updateShape(state, level, ticks, currentPos, facing, facingPos, facingState, random);
 		}
 	}
 
@@ -75,7 +77,7 @@ public class TatamiMatBlock extends HorizontalDirectionalBlock
 
 	@Override
 	public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-		if (!level.isClientSide && player.isCreative()) {
+		if (!level.isClientSide() && player.isCreative()) {
 			BedPart part = state.getValue(PART);
 			if (part == BedPart.FOOT) {
 				BlockPos pairPos = pos.relative(getDirectionToOther(part, state.getValue(FACING)));
@@ -93,10 +95,10 @@ public class TatamiMatBlock extends HorizontalDirectionalBlock
 	@Override
 	public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
 		super.setPlacedBy(level, pos, state, placer, stack);
-		if (!level.isClientSide) {
+		if (!level.isClientSide()) {
 			BlockPos facingPos = pos.relative(state.getValue(FACING));
 			level.setBlock(facingPos, state.setValue(PART, BedPart.HEAD), 3);
-			level.blockUpdated(pos, Blocks.AIR);
+			level.updateNeighborsAt(pos, Blocks.AIR, null);
 			state.updateNeighbourShapes(level, pos, 3);
 		}
 	}

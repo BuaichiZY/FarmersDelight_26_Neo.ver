@@ -2,15 +2,9 @@
   "type": "farmersdelight:cooking",
   "experience": 1.0,
   "ingredients": [
-    {
-      "tag": "c:foods/raw_mutton"
-    },
-    {
-      "tag": "c:foods/pasta"
-    },
-    {
-      "item": "farmersdelight:tomato_sauce"
-    }
+    "#c:foods/raw_mutton",
+    "#c:foods/pasta",
+    "farmersdelight:tomato_sauce"
   ],
   "recipe_book_tab": "meals",
   "result": {

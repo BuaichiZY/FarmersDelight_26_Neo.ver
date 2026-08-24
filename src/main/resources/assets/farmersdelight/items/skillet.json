@@ -1,0 +1,31 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "farmersdelight:item/skillet"
+        },
+        "when": "gui"
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:composite",
+      "models": [
+        {
+          "type": "minecraft:model",
+          "model": "farmersdelight:item/skillet"
+        },
+        {
+          "type": "minecraft:special",
+          "base": "farmersdelight:item/skillet_cooking",
+          "model": {
+            "type": "farmersdelight:skillet"
+          }
+        }
+      ]
+    },
+    "property": "minecraft:display_context"
+  }
+}

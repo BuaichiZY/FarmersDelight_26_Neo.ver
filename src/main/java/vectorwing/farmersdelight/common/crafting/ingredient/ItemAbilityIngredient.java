@@ -2,8 +2,9 @@ package vectorwing.farmersdelight.common.crafting.ingredient;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.common.ItemAbility;
@@ -19,7 +20,6 @@ import java.util.stream.Stream;
  * Ingredient that checks if the given stack can perform a ItemAbility from Forge.
  */
 @ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class ItemAbilityIngredient implements ICustomIngredient
 {
 	public static final MapCodec<ItemAbilityIngredient> CODEC = RecordCodecBuilder.mapCodec(inst ->
@@ -27,18 +27,9 @@ public class ItemAbilityIngredient implements ICustomIngredient
 			).apply(inst, ItemAbilityIngredient::new));
 
 	protected final ItemAbility itemAbility;
-	protected Stream<ItemStack> itemStacks;
 
 	public ItemAbilityIngredient(ItemAbility itemAbility) {
 		this.itemAbility = itemAbility;
-	}
-
-	protected void dissolve() {
-		if (this.itemStacks == null) {
-			itemStacks = BuiltInRegistries.ITEM.stream()
-					.map(ItemStack::new)
-					.filter(stack -> stack.canPerformAction(itemAbility));
-		}
 	}
 
 	@Override
@@ -47,9 +38,10 @@ public class ItemAbilityIngredient implements ICustomIngredient
 	}
 
 	@Override
-	public Stream<ItemStack> getItems() {
-		dissolve();
-		return itemStacks;
+	public Stream<Holder<Item>> items() {
+		return BuiltInRegistries.ITEM.stream()
+				.filter(item -> new ItemStack(item).canPerformAction(itemAbility))
+				.map(Item::builtInRegistryHolder);
 	}
 
 	@Override

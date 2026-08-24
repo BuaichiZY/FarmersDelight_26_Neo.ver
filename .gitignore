@@ -16,12 +16,14 @@ out
 # gradle
 build
 .gradle
+.gradle-user-home
 
 # other
 eclipse
 run
 logs
 docsOut
+work
 
 # Files from Forge MDK
 forge*changelog.txt

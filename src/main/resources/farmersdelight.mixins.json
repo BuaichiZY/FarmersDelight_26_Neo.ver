@@ -1,20 +1,19 @@
 {
   "required": true,
   "package": "vectorwing.farmersdelight.common.mixin",
-  "compatibilityLevel": "JAVA_21",
+  "compatibilityLevel": "JAVA_25",
   "mixins": [
     "datafix.ItemStackComponentizationFixMixin",
     "datafix.V1460Mixin",
     "datafix.V3818_3Mixin",
     "CampfireBaleMixin",
     "CuttingBoardDispenserMixin",
-    "KeepRichSoilGiantTreeMixin",
-    "KeepRichSoilTreeMixin",
     "KeepRichSoilUntrampledMixin",
+    "FoodDataAccessor",
     "NourishmentAlwaysEatMixin",
     "PlacePumpkinPieMixin",
     "RopeFenceConnectionMixin",
-    "VillagersTargetRichSoilMixin"
+    "VillagerAccessor"
   ],
   "client": [
     "CanvasSignEditScreenMixin",

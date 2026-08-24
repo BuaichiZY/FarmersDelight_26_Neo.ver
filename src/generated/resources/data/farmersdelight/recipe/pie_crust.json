@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "M": {
-      "tag": "c:drinks/milk"
-    },
-    "w": {
-      "tag": "c:crops/wheat"
-    }
+    "M": "#c:drinks/milk",
+    "w": "#c:crops/wheat"
   },
   "pattern": [
     "wMw",

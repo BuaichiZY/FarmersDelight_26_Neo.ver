@@ -2,15 +2,9 @@
   "type": "farmersdelight:cooking",
   "experience": 1.0,
   "ingredients": [
-    {
-      "item": "farmersdelight:minced_beef"
-    },
-    {
-      "tag": "c:foods/pasta"
-    },
-    {
-      "item": "farmersdelight:tomato_sauce"
-    }
+    "farmersdelight:minced_beef",
+    "#c:foods/pasta",
+    "farmersdelight:tomato_sauce"
   ],
   "recipe_book_tab": "meals",
   "result": {

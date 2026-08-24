@@ -6,8 +6,7 @@ import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.registration.*;
-import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import vectorwing.farmersdelight.FarmersDelight;
@@ -27,11 +26,10 @@ import java.util.List;
 
 @JeiPlugin
 @ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 @SuppressWarnings("unused")
 public class JEIPlugin implements IModPlugin
 {
-	private static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(FarmersDelight.MODID, "jei_plugin");
+	private static final Identifier ID = Identifier.fromNamespaceAndPath(FarmersDelight.MODID, "jei_plugin");
 
 	@Override
 	public void registerCategories(IRecipeCategoryRegistration registry) {
@@ -43,8 +41,11 @@ public class JEIPlugin implements IModPlugin
 	@Override
 	public void registerRecipes(IRecipeRegistration registration) {
 		FDRecipes modRecipes = new FDRecipes();
-		registration.addRecipes(FDRecipeTypes.COOKING, modRecipes.getCookingPotRecipes());
-		registration.addRecipes(FDRecipeTypes.CUTTING, modRecipes.getCuttingBoardRecipes());
+		var cookingRecipes = modRecipes.getCookingPotRecipes();
+		var cuttingRecipes = modRecipes.getCuttingBoardRecipes();
+		FarmersDelight.LOGGER.info("Registering {} cooking pot and {} cutting board recipes with JEI", cookingRecipes.size(), cuttingRecipes.size());
+		registration.addRecipes(FDRecipeTypes.COOKING, cookingRecipes);
+		registration.addRecipes(FDRecipeTypes.CUTTING, cuttingRecipes);
 		registration.addRecipes(FDRecipeTypes.DECOMPOSITION, ImmutableList.of(new DecompositionDummy()));
 
 		registration.addRecipes(RecipeTypes.CRAFTING, modRecipes.getSpecialCraftingRecipes());
@@ -70,11 +71,10 @@ public class JEIPlugin implements IModPlugin
 
 	@Override
 	public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-		registration.addRecipeCatalyst(new ItemStack(ModItems.COOKING_POT.get()), FDRecipeTypes.COOKING);
-		registration.addRecipeCatalyst(new ItemStack(ModItems.CUTTING_BOARD.get()), FDRecipeTypes.CUTTING);
-		registration.addRecipeCatalyst(new ItemStack(ModItems.STOVE.get()), RecipeTypes.CAMPFIRE_COOKING);
-		registration.addRecipeCatalyst(new ItemStack(ModItems.SKILLET.get()), RecipeTypes.CAMPFIRE_COOKING);
-		registration.addRecipeCatalyst(new ItemStack(ModBlocks.ORGANIC_COMPOST.get()), FDRecipeTypes.DECOMPOSITION);
+		registration.addCraftingStation(FDRecipeTypes.COOKING, ModItems.COOKING_POT.get());
+		registration.addCraftingStation(FDRecipeTypes.CUTTING, ModItems.CUTTING_BOARD.get());
+		registration.addCraftingStation(RecipeTypes.CAMPFIRE_COOKING, ModItems.STOVE.get(), ModItems.SKILLET.get());
+		registration.addCraftingStation(FDRecipeTypes.DECOMPOSITION, ModBlocks.ORGANIC_COMPOST.get());
 	}
 
 	@Override
@@ -88,7 +88,7 @@ public class JEIPlugin implements IModPlugin
 	}
 
 	@Override
-	public ResourceLocation getPluginUid() {
+	public Identifier getPluginUid() {
 		return ID;
 	}
 }

@@ -6,15 +6,9 @@
   },
   "experience": 1.0,
   "ingredients": [
-    {
-      "tag": "c:crops/beetroot"
-    },
-    {
-      "tag": "c:crops/beetroot"
-    },
-    {
-      "tag": "c:crops/beetroot"
-    }
+    "#c:crops/beetroot",
+    "#c:crops/beetroot",
+    "#c:crops/beetroot"
   ],
   "recipe_book_tab": "meals",
   "result": {

@@ -39,14 +39,18 @@ public class PastrySlicingModifier extends LootModifier
 	 * Otherwise, this does nothing.
 	 */
 	public PastrySlicingModifier(LootItemCondition[] conditions, Item pastrySlice) {
-		super(conditions);
+		this(conditions, IGlobalLootModifier.DEFAULT_PRIORITY, pastrySlice);
+	}
+
+	public PastrySlicingModifier(LootItemCondition[] conditions, int priority, Item pastrySlice) {
+		super(conditions, priority);
 		this.pastrySlice = pastrySlice;
 	}
 
 	@Nonnull
 	@Override
 	protected ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
-		BlockState state = context.getParamOrNull(LootContextParams.BLOCK_STATE);
+		BlockState state = context.getOptionalParameter(LootContextParams.BLOCK_STATE);
 		if (state != null) {
 			Block targetBlock = state.getBlock();
 			if (targetBlock instanceof CakeBlock) {

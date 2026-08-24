@@ -1,7 +1,7 @@
 package vectorwing.farmersdelight.common.tag;
 
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
@@ -114,6 +114,7 @@ public class ModTags
 		public static final TagKey<Item> HANGING_CANVAS_SIGNS = modItemTag("hanging_canvas_signs");
 
 		public static final TagKey<Item> KNIVES = modItemTag("tools/knives");
+		public static final TagKey<Item> FLINT_TOOL_MATERIALS = modItemTag("repair_materials/flint_tools");
 
 		public static final TagKey<Item> MUSHROOM_COLONIES = modItemTag("mushroom_colonies");
 
@@ -133,15 +134,15 @@ public class ModTags
 	}
 
 	private static TagKey<Item> modItemTag(String path) {
-		return ItemTags.create(ResourceLocation.fromNamespaceAndPath(FarmersDelight.MODID, path));
+		return ItemTags.create(Identifier.fromNamespaceAndPath(FarmersDelight.MODID, path));
 	}
 
 	private static TagKey<Block> modBlockTag(String path) {
-		return BlockTags.create(ResourceLocation.fromNamespaceAndPath(FarmersDelight.MODID, path));
+		return BlockTags.create(Identifier.fromNamespaceAndPath(FarmersDelight.MODID, path));
 	}
 
 	private static TagKey<EntityType<?>> modEntityTag(String path) {
-		return TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(FarmersDelight.MODID, path));
+		return TagKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(FarmersDelight.MODID, path));
 	}
 
 	/**

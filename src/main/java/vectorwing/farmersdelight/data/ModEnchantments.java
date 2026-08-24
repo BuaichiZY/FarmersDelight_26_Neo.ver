@@ -4,7 +4,7 @@ import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -40,6 +40,6 @@ public class ModEnchantments
 	}
 
 	private static ResourceKey<Enchantment> key(String name) {
-		return ResourceKey.create(Registries.ENCHANTMENT, ResourceLocation.fromNamespaceAndPath(FarmersDelight.MODID, name));
+		return ResourceKey.create(Registries.ENCHANTMENT, Identifier.fromNamespaceAndPath(FarmersDelight.MODID, name));
 	}
 }

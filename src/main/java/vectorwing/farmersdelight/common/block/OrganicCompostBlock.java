@@ -1,6 +1,7 @@
 package vectorwing.farmersdelight.common.block;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
@@ -42,8 +43,23 @@ public class OrganicCompostBlock extends Block
 	@Override
 	@SuppressWarnings("deprecation")
 	public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-		if (level.isClientSide) return;
+		if (level.isClientSide()) return;
 
+		float chance = getCompostingChance(level, pos);
+		if (random.nextFloat() <= chance) {
+			if (state.getValue(COMPOSTING) == this.getMaxCompostingStage())
+				level.setBlock(pos, ModBlocks.RICH_SOIL.get().defaultBlockState(), 3); // finished
+			else
+				level.setBlock(pos, state.setValue(COMPOSTING, state.getValue(COMPOSTING) + 1), 3); // next stage
+		}
+	}
+
+	/**
+	 * Calculates the original composting chance for the surrounding 3x3x3 area.
+	 * Each tagged activator adds 2%, nearby water adds 10% once, and sky light
+	 * contributes either 10% in bright conditions or 5% otherwise.
+	 */
+	public float getCompostingChance(Level level, BlockPos pos) {
 		float chance = 0F;
 		boolean hasWater = false;
 		int maxLight = 0;
@@ -64,13 +80,7 @@ public class OrganicCompostBlock extends Block
 
 		chance += maxLight > 12 ? 0.1F : 0.05F;
 		chance += hasWater ? 0.1F : 0.0F;
-
-		if (level.getRandom().nextFloat() <= chance) {
-			if (state.getValue(COMPOSTING) == this.getMaxCompostingStage())
-				level.setBlock(pos, ModBlocks.RICH_SOIL.get().defaultBlockState(), 3); // finished
-			else
-				level.setBlock(pos, state.setValue(COMPOSTING, state.getValue(COMPOSTING) + 1), 3); // next stage
-		}
+		return chance;
 	}
 
 	@Override
@@ -79,7 +89,7 @@ public class OrganicCompostBlock extends Block
 	}
 
 	@Override
-	public int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos pos) {
+	public int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos pos, Direction direction) {
 		return (getMaxCompostingStage() + 1 - blockState.getValue(COMPOSTING));
 	}
 

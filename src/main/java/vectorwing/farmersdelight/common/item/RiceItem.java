@@ -4,18 +4,18 @@ import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemNameBlockItem;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.FarmBlock;
+import net.minecraft.world.level.block.FarmlandBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import vectorwing.farmersdelight.common.utility.TextUtils;
 
-public class RiceItem extends ItemNameBlockItem
+public class RiceItem extends BlockItem
 {
 	public RiceItem(Block block, Properties properties) {
-		super(block, properties);
+		super(block, properties.useItemDescriptionPrefix());
 	}
 
 	@Override
@@ -24,10 +24,11 @@ public class RiceItem extends ItemNameBlockItem
 		if (result.equals(InteractionResult.FAIL)) {
 			Player player = context.getPlayer();
 			BlockState targetState = context.getLevel().getBlockState(context.getClickedPos());
-			if (player != null && context.getClickedFace().equals(Direction.UP) && (targetState.is(BlockTags.DIRT) || targetState.getBlock() instanceof FarmBlock)) {
-				player.displayClientMessage(TextUtils.block("rice.invalid_placement"), true);
+			if (player != null && context.getClickedFace().equals(Direction.UP) && (targetState.is(BlockTags.DIRT) || targetState.getBlock() instanceof FarmlandBlock)) {
+				player.sendOverlayMessage(TextUtils.block("rice.invalid_placement"));
 			}
 		}
-		return !result.consumesAction() ? this.use(context.getLevel(), context.getPlayer(), context.getHand()).getResult() : result;
+		Player player = context.getPlayer();
+		return !result.consumesAction() && player != null ? this.use(context.getLevel(), player, context.getHand()) : result;
 	}
 }

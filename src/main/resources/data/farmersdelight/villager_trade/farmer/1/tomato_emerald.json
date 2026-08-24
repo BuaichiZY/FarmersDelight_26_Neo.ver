@@ -1,0 +1,8 @@
+{
+  "neoforge:conditions": [{ "type": "farmersdelight:farmer_trades_enabled" }],
+  "wants": { "id": "farmersdelight:tomato", "count": 26 },
+  "gives": { "id": "minecraft:emerald" },
+  "max_uses": 16,
+  "xp": 2,
+  "reputation_discount": 0.05
+}

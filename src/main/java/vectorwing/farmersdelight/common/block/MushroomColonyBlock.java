@@ -13,9 +13,10 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -25,7 +26,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BonemealableBlock;
-import net.minecraft.world.level.block.BushBlock;
+import net.minecraft.world.level.block.VegetationBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -40,7 +41,7 @@ import vectorwing.farmersdelight.common.tag.ModTags;
 import vectorwing.farmersdelight.common.utility.ItemUtils;
 
 @SuppressWarnings("deprecation")
-public class MushroomColonyBlock extends BushBlock implements BonemealableBlock
+public class MushroomColonyBlock extends VegetationBlock implements BonemealableBlock
 {
 	public static final MapCodec<MushroomColonyBlock> CODEC = RecordCodecBuilder.mapCodec(
 			builder -> builder.group(BuiltInRegistries.ITEM.holderByNameCodec().fieldOf("mushroom").forGetter(block -> block.mushroomType), propertiesCodec())
@@ -65,21 +66,21 @@ public class MushroomColonyBlock extends BushBlock implements BonemealableBlock
 	}
 
 	@Override
-	public ItemInteractionResult useItemOn(ItemStack heldStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+	public InteractionResult useItemOn(ItemStack heldStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
 		int age = state.getValue(COLONY_AGE);
 
 		if (age > 0) {
-			ItemStack mushroomStack = getCloneItemStack(level, pos, state);
+			ItemStack mushroomStack = getCloneItemStack(level, pos, state, false);
 			if (ItemUtils.isValidTool(heldStack, ItemAbilities.SHEARS_HARVEST, Tags.Items.TOOLS_SHEAR)) {
 				level.setBlock(pos, state.setValue(COLONY_AGE, age - 1), 2);
 				level.playSound(null, pos, SoundEvents.SHEEP_SHEAR, SoundSource.BLOCKS, 1.0F, 1.0F);
 				popResource(level, pos, mushroomStack);
-				if (!level.isClientSide) {
-					heldStack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+				if (!level.isClientSide()) {
+					heldStack.hurtAndBreak(1, player, hand);
 					((ServerLevel) level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, state), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 3, 0.1, 0.1, 0.1, 0.001D);
 				}
 
-				return ItemInteractionResult.sidedSuccess(level.isClientSide);
+				return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
 			}
 			if (ItemUtils.isKnife(heldStack)) {
 				int colonyAge = state.getValue(COLONY_AGE);
@@ -87,16 +88,16 @@ public class MushroomColonyBlock extends BushBlock implements BonemealableBlock
 				level.setBlock(pos, state.setValue(COLONY_AGE, 0), 2);
 				level.playSound(null, pos, this.soundType.getBreakSound(), SoundSource.BLOCKS, 1.0F, 1.0F);
 				popResource(level, pos, mushroomStack);
-				if (!level.isClientSide) {
-					heldStack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+				if (!level.isClientSide()) {
+					heldStack.hurtAndBreak(1, player, hand);
 					((ServerLevel) level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, state), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 10, 0.2, 0.2, 0.2, 0.1D);
 				}
 
-				return ItemInteractionResult.sidedSuccess(level.isClientSide);
+				return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
 			}
 		}
 
-		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+		return InteractionResult.TRY_WITH_EMPTY_HAND;
 	}
 
 	@Override
@@ -109,21 +110,21 @@ public class MushroomColonyBlock extends BushBlock implements BonemealableBlock
 	}
 
 	@Override
-	protected MapCodec<? extends BushBlock> codec() {
+	public MapCodec<MushroomColonyBlock> codec() {
 		return CODEC;
 	}
 
 	@Override
 	protected boolean mayPlaceOn(BlockState state, BlockGetter level, BlockPos pos) {
-		return state.isSolidRender(level, pos);
+		return state.isSolidRender();
 	}
 
 	@Override
 	public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
 		BlockPos floorPos = pos.below();
 		BlockState floorState = level.getBlockState(floorPos);
-		net.neoforged.neoforge.common.util.TriState soilDecision = floorState.canSustainPlant(level, floorPos, net.minecraft.core.Direction.UP, state);
-		return floorState.is(BlockTags.MUSHROOM_GROW_BLOCK) || (soilDecision.isDefault() ? (level.getRawBrightness(pos, 0) < 13 && this.mayPlaceOn(floorState, level, floorPos)) : soilDecision.isTrue());
+		TriState soilDecision = floorState.canSustainPlant(level, floorPos, net.minecraft.core.Direction.UP, state);
+		return floorState.is(BlockTags.OVERRIDES_MUSHROOM_LIGHT_REQUIREMENT) || (soilDecision.isDefault() ? (level.getRawBrightness(pos, 0) < 13 && this.mayPlaceOn(floorState, level, floorPos)) : soilDecision.isTrue());
 	}
 
 	public int getMaxAge() {
@@ -141,7 +142,7 @@ public class MushroomColonyBlock extends BushBlock implements BonemealableBlock
 	}
 
 	@Override
-	public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state) {
+	protected ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData) {
 		return new ItemStack(this.mushroomType.value());
 	}
 
@@ -161,7 +162,7 @@ public class MushroomColonyBlock extends BushBlock implements BonemealableBlock
 	}
 
 	protected int getBonemealAgeIncrease(Level level) {
-		return Mth.nextInt(level.random, 1, 2);
+		return Mth.nextInt(level.getRandom(), 1, 2);
 	}
 
 	@Override

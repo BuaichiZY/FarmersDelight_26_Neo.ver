@@ -3,12 +3,11 @@ package vectorwing.farmersdelight.common.block.entity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -27,6 +26,8 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -35,10 +36,13 @@ import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import vectorwing.farmersdelight.FarmersDelight;
 import vectorwing.farmersdelight.common.block.CuttingBoardBlock;
 import vectorwing.farmersdelight.common.crafting.CuttingBoardRecipe;
 import vectorwing.farmersdelight.common.crafting.CuttingBoardRecipeInput;
+import vectorwing.farmersdelight.common.block.entity.inventory.LegacyItemHandlerResourceHandler;
 import vectorwing.farmersdelight.common.registry.ModAdvancements;
 import vectorwing.farmersdelight.common.registry.ModBlockEntityTypes;
 import vectorwing.farmersdelight.common.registry.ModRecipeTypes;
@@ -55,13 +59,15 @@ import java.util.Optional;
 public class CuttingBoardBlockEntity extends SyncedBlockEntity implements Clearable
 {
 	private final ItemStackHandler inventory;
+	private final ResourceHandler<ItemResource> automationHandler;
 	private final RecipeManager.CachedCheck<CuttingBoardRecipeInput, CuttingBoardRecipe> quickCheck;
-	private ResourceLocation lastRecipeID;
+	private Identifier lastRecipeID;
 	private boolean isItemCarvingBoard;
 
 	public CuttingBoardBlockEntity(BlockPos pos, BlockState state) {
 		super(ModBlockEntityTypes.CUTTING_BOARD.get(), pos, state);
 		inventory = createHandler();
+		automationHandler = new LegacyItemHandlerResourceHandler(inventory, inventory::setStackInSlot);
 		isItemCarvingBoard = false;
 		quickCheck = RecipeManager.createCheck(ModRecipeTypes.CUTTING.get());
 	}
@@ -69,24 +75,24 @@ public class CuttingBoardBlockEntity extends SyncedBlockEntity implements Cleara
 	@SubscribeEvent
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
 		event.registerBlockEntity(
-				Capabilities.ItemHandler.BLOCK,
+				Capabilities.Item.BLOCK,
 				ModBlockEntityTypes.CUTTING_BOARD.get(),
-				(be, context) -> be.getInventory()
+				(be, context) -> be.automationHandler
 		);
 	}
 
 	@Override
-	public void loadAdditional(CompoundTag compound, HolderLookup.Provider registries) {
-		super.loadAdditional(compound, registries);
-		isItemCarvingBoard = compound.getBoolean("IsItemCarved");
-		inventory.deserializeNBT(registries, compound.getCompound("Inventory"));
+	protected void loadAdditional(ValueInput input) {
+		super.loadAdditional(input);
+		isItemCarvingBoard = input.getBooleanOr("IsItemCarved", false);
+		input.readChild("Inventory", inventory);
 	}
 
 	@Override
-	public void saveAdditional(CompoundTag compound, HolderLookup.Provider registries) {
-		super.saveAdditional(compound, registries);
-		compound.put("Inventory", inventory.serializeNBT(registries));
-		compound.putBoolean("IsItemCarved", isItemCarvingBoard);
+	protected void saveAdditional(ValueOutput output) {
+		super.saveAdditional(output);
+		output.putChild("Inventory", inventory);
+		output.putBoolean("IsItemCarved", isItemCarvingBoard);
 	}
 
 	public boolean processStoredItemUsingTool(ItemStack toolStack, @Nullable Player player) {
@@ -97,14 +103,14 @@ public class CuttingBoardBlockEntity extends SyncedBlockEntity implements Cleara
 		Optional<RecipeHolder<CuttingBoardRecipe>> matchingRecipe = getMatchingRecipe(toolStack, player);
 
 		matchingRecipe.ifPresent(recipe -> {
-			List<ItemStack> results = recipe.value().rollResults(level.random, ItemUtils.getValidatedEnchantmentLevel(Enchantments.FORTUNE, level.registryAccess(), toolStack), new RecipeWrapper(inventory));
+			List<ItemStack> results = recipe.value().rollResults(level.getRandom(), ItemUtils.getValidatedEnchantmentLevel(Enchantments.FORTUNE, level.registryAccess(), toolStack), new RecipeWrapper(inventory));
 			for (ItemStack resultStack : results) {
 				Direction direction = getBlockState().getValue(CuttingBoardBlock.FACING).getCounterClockWise();
 				ItemUtils.spawnItemEntity(level, resultStack.copy(),
 						worldPosition.getX() + 0.5 + (direction.getStepX() * 0.2), worldPosition.getY() + 0.2, worldPosition.getZ() + 0.5 + (direction.getStepZ() * 0.2),
 						direction.getStepX() * 0.2F, 0.0F, direction.getStepZ() * 0.2F);
 			}
-			if (!level.isClientSide) {
+			if (!level.isClientSide()) {
 				toolStack.hurtAndBreak(1, (ServerLevel) level, player, (item) -> {
 				});
 				if (player != null) {
@@ -119,9 +125,9 @@ public class CuttingBoardBlockEntity extends SyncedBlockEntity implements Cleara
 			if (player instanceof ServerPlayer) {
 				ModAdvancements.USE_CUTTING_BOARD.get().trigger((ServerPlayer) player);
 				if (!getStoredItem().isEmpty()) {
-					player.displayClientMessage(TextUtils.block("cutting_board.remaining_items", getStoredItem().getCount()), true);
+					player.sendOverlayMessage(TextUtils.block("cutting_board.remaining_items", getStoredItem().getCount()));
 				} else {
-					player.displayClientMessage(Component.empty(), true);
+					player.sendOverlayMessage(Component.empty());
 				}
 			}
 		});
@@ -130,24 +136,24 @@ public class CuttingBoardBlockEntity extends SyncedBlockEntity implements Cleara
 	}
 
 	private Optional<RecipeHolder<CuttingBoardRecipe>> getMatchingRecipe(ItemStack toolStack, @Nullable Player player) {
-		if (level == null) return Optional.empty();
+		if (!(level instanceof ServerLevel serverLevel)) return Optional.empty();
 
-		Optional<RecipeHolder<CuttingBoardRecipe>> recipe = quickCheck.getRecipeFor(new CuttingBoardRecipeInput(getStoredItem(), toolStack), level);
+		Optional<RecipeHolder<CuttingBoardRecipe>> recipe = quickCheck.getRecipeFor(new CuttingBoardRecipeInput(getStoredItem(), toolStack), serverLevel);
 		if (recipe.isPresent()) {
 			if (recipe.get().value().getTool().test(toolStack)) {
 				return recipe;
 			} else if (player != null) {
-				player.displayClientMessage(TextUtils.block("cutting_board.invalid_item"), true);
+				player.sendOverlayMessage(TextUtils.block("cutting_board.invalid_item"));
 			}
 		} else if (player != null) {
-			player.displayClientMessage(TextUtils.block("cutting_board.invalid_tool"), true);
+			player.sendOverlayMessage(TextUtils.block("cutting_board.invalid_tool"));
 		}
 
 		return Optional.empty();
 	}
 
 	public void spawnCuttingParticles(ServerLevel level, BlockPos pos, ItemStack stack) {
-		level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, stack), pos.getX() + 0.5, pos.getY() + 0.2, pos.getZ() + 0.5, 5, 0.1, 0.1, 0.1, 0.05D);
+		level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, stack.getItem()), pos.getX() + 0.5, pos.getY() + 0.2, pos.getZ() + 0.5, 5, 0.1, 0.1, 0.1, 0.05D);
 	}
 
 	public void playProcessingSound(@Nullable SoundEvent sound, ItemStack tool, ItemStack boardItem) {
@@ -191,7 +197,7 @@ public class CuttingBoardBlockEntity extends SyncedBlockEntity implements Cleara
 	}
 
 	public boolean carveToolOnBoard(ItemStack toolStack) {
-		if (toolStack.getItem() instanceof TieredItem || toolStack.getItem() instanceof TridentItem || toolStack.getItem() instanceof ShearsItem) {
+		if (toolStack.has(DataComponents.TOOL) || toolStack.getItem() instanceof TridentItem || toolStack.getItem() instanceof ShearsItem) {
 			if (addItem(toolStack) == ItemStack.EMPTY) {
 				isItemCarvingBoard = true;
 				return true;

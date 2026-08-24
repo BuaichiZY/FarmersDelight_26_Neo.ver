@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import vectorwing.farmersdelight.common.block.state.CanvasSign;
 import vectorwing.farmersdelight.common.registry.ModBlockEntityTypes;
+import vectorwing.farmersdelight.common.registry.ModBlocks;
 
 import javax.annotation.Nullable;
 
@@ -18,7 +19,7 @@ public class CeilingHangingCanvasSignBlock extends CeilingHangingSignBlock imple
 	private final DyeColor backgroundColor;
 
 	public CeilingHangingCanvasSignBlock(@Nullable DyeColor backgroundColor) {
-		super(WoodType.SPRUCE, BlockBehaviour.Properties.ofFullCopy(Blocks.SPRUCE_HANGING_SIGN));
+		super(WoodType.SPRUCE, ModBlocks.registeredProperties(Blocks.SPRUCE_HANGING_SIGN));
 		this.backgroundColor = backgroundColor;
 	}
 

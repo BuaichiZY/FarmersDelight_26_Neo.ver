@@ -1,10 +1,7 @@
 package vectorwing.farmersdelight.client.event;
 
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
-import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -21,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import vectorwing.farmersdelight.FarmersDelight;
 import vectorwing.farmersdelight.client.gui.CookingPotScreen;
 import vectorwing.farmersdelight.client.gui.CookingPotTooltip;
+import vectorwing.farmersdelight.client.gui.CanvasSignEditScreen;
 import vectorwing.farmersdelight.client.gui.HUDOverlays;
 import vectorwing.farmersdelight.client.particle.SparkleParticle;
 import vectorwing.farmersdelight.client.particle.StarParticle;
@@ -36,22 +34,12 @@ import vectorwing.farmersdelight.common.registry.*;
 public class ClientSetupEvents
 {
 	public static void init(final FMLClientSetupEvent event) {
-		event.enqueueWork(() -> ItemProperties.register(ModItems.SKILLET.get(), ResourceLocation.withDefaultNamespace("cooking"),
-			(stack, world, entity, s) -> stack.getOrDefault(ModDataComponents.SKILLET_INGREDIENT, ItemStackWrapper.EMPTY).getStack().isEmpty() ? 0 : 1)
-		);
 	}
 
 	@SubscribeEvent
 	public static void registerClientExtensions(RegisterClientExtensionsEvent event) {
-		event.registerItem(new IClientItemExtensions()
+		 event.registerItem(new IClientItemExtensions()
 		{
-			BlockEntityWithoutLevelRenderer renderer = new SkilletItemRenderer();
-
-			@Override
-			public @NotNull BlockEntityWithoutLevelRenderer getCustomRenderer() {
-				return renderer;
-			}
-
 			@Override
 			public HumanoidModel.@Nullable ArmPose getArmPose(LivingEntity living, InteractionHand hand, ItemStack stack) {
 				return stack.has(ModDataComponents.SKILLET_FLIP_TIMESTAMP.get()) ? EnumParameters.PROXY_SKILLET_FLIP.getValue() : null;
@@ -60,7 +48,23 @@ public class ClientSetupEvents
 	}
 
 	@SubscribeEvent
-	public static void registerRecipeBookCategories(RegisterRecipeBookCategoriesEvent event) {
+	public static void registerSpecialModelRenderers(RegisterSpecialModelRendererEvent event) {
+		event.register(
+				net.minecraft.resources.Identifier.fromNamespaceAndPath(FarmersDelight.MODID, "skillet"),
+				SkilletItemRenderer.Unbaked.MAP_CODEC
+		);
+	}
+
+	@SubscribeEvent
+	public static void registerPictureInPictureRenderers(RegisterPictureInPictureRenderersEvent event) {
+		event.register(
+				CanvasSignEditScreen.CanvasSignGuiRenderState.class,
+				CanvasSignEditScreen.CanvasSignGuiRenderer::new
+		);
+	}
+
+	@SubscribeEvent
+	public static void registerRecipeBookCategories(RegisterRecipeBookSearchCategoriesEvent event) {
 		RecipeCategories.init(event);
 	}
 
@@ -94,5 +98,15 @@ public class ClientSetupEvents
 		event.registerSpriteSet(ModParticleTypes.STAR.get(), StarParticle.Factory::new);
 		event.registerSpriteSet(ModParticleTypes.STEAM.get(), SteamParticle.Factory::new);
 		event.registerSpriteSet(ModParticleTypes.SPARKLE.get(), SparkleParticle.Factory::new);
+	}
+
+	@SubscribeEvent
+	public static void receiveRecipeContents(RecipesReceivedEvent event) {
+		vectorwing.farmersdelight.client.recipebook.ClientRecipeCache.setRecipeMap(event.getRecipeMap());
+	}
+
+	@SubscribeEvent
+	public static void clearRecipeContents(ClientPlayerNetworkEvent.LoggingOut event) {
+		vectorwing.farmersdelight.client.recipebook.ClientRecipeCache.clear();
 	}
 }

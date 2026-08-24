@@ -1,7 +1,7 @@
 package vectorwing.farmersdelight.data.recipe;
 
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
@@ -28,7 +28,7 @@ public class CuttingRecipes
 	public static Ingredient PICKAXES = matchesTool(ItemAbilities.PICKAXE_DIG, ItemTags.PICKAXES);
 	public static Ingredient AXES = matchesTool(ItemAbilities.AXE_DIG, ItemTags.AXES);
 	public static Ingredient AXES_STRIP = matchesTool(ItemAbilities.AXE_STRIP, ItemTags.AXES);
-	public static Ingredient SHOVELS = matchesTool(ItemAbilities.SHOVEL_DIG, ItemTags.SHOVELS);
+	public static Ingredient SHOVELS = matchesTool(ItemAbilities.SHOVEL_DOUSE, ItemTags.SHOVELS);
 	public static Ingredient HOES = matchesTool(ItemAbilities.HOE_DIG, ItemTags.HOES);
 	public static Ingredient SHEARS = matchesTool(ItemAbilities.SHEARS_DIG, Tags.Items.TOOLS_SHEAR);
 
@@ -368,7 +368,7 @@ public class CuttingRecipes
 		return CompoundIngredient.of(new ItemAbilityIngredient(toolAction).toVanilla(), Ingredient.of(fallbackTag));
 	}
 
-	private static ResourceLocation salvagingRecipe(String name) {
-		return ResourceLocation.fromNamespaceAndPath(FarmersDelight.MODID, "salvaging/" + name);
+	private static Identifier salvagingRecipe(String name) {
+		return Identifier.fromNamespaceAndPath(FarmersDelight.MODID, "salvaging/" + name);
 	}
 }

@@ -9,16 +9,18 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BonemealableBlock;
-import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.LiquidBlockContainer;
+import net.minecraft.world.level.block.VegetationBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -36,7 +38,7 @@ import vectorwing.farmersdelight.common.registry.ModItems;
 import javax.annotation.Nullable;
 
 @SuppressWarnings("deprecation")
-public class RiceBlock extends BushBlock implements BonemealableBlock, LiquidBlockContainer
+public class RiceBlock extends VegetationBlock implements BonemealableBlock, LiquidBlockContainer
 {
 	public static final MapCodec<RiceBlock> CODEC = simpleCodec(RiceBlock::new);
 
@@ -54,7 +56,7 @@ public class RiceBlock extends BushBlock implements BonemealableBlock, LiquidBlo
 	}
 
 	@Override
-	protected MapCodec<? extends BushBlock> codec() {
+	public MapCodec<RiceBlock> codec() {
 		return CODEC;
 	}
 
@@ -111,7 +113,7 @@ public class RiceBlock extends BushBlock implements BonemealableBlock, LiquidBlo
 	}
 
 	@Override
-	public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state) {
+	protected ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData) {
 		return new ItemStack(ModItems.RICE.get());
 	}
 
@@ -129,10 +131,10 @@ public class RiceBlock extends BushBlock implements BonemealableBlock, LiquidBlo
 	}
 
 	@Override
-	public BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor level, BlockPos currentPos, BlockPos facingPos) {
-		BlockState updatedState = super.updateShape(state, facing, facingState, level, currentPos, facingPos);
+	protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess ticks, BlockPos currentPos, Direction facing, BlockPos facingPos, BlockState facingState, RandomSource random) {
+		BlockState updatedState = super.updateShape(state, level, ticks, currentPos, facing, facingPos, facingState, random);
 		if (!updatedState.isAir()) {
-			level.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+			ticks.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
 			if (facing == Direction.UP) {
 				return updatedState.setValue(SUPPORTING, isSupportingRiceUpper(facingState));
 			}
@@ -167,7 +169,7 @@ public class RiceBlock extends BushBlock implements BonemealableBlock, LiquidBlo
 	}
 
 	protected int getBonemealAgeIncrease(Level level) {
-		return Mth.nextInt(level.random, 1, 4);
+		return Mth.nextInt(level.getRandom(), 1, 4);
 	}
 
 	@Override
@@ -180,7 +182,7 @@ public class RiceBlock extends BushBlock implements BonemealableBlock, LiquidBlo
 			if (top.getBlock() == ModBlocks.RICE_CROP_PANICLES.get()) {
 				BonemealableBlock growable = (BonemealableBlock) level.getBlockState(pos.above()).getBlock();
 				if (growable.isValidBonemealTarget(level, pos.above(), top)) {
-					growable.performBonemeal(level, level.random, pos.above(), top);
+					growable.performBonemeal(level, level.getRandom(), pos.above(), top);
 				}
 			} else {
 				RicePaniclesBlock riceUpper = (RicePaniclesBlock) ModBlocks.RICE_CROP_PANICLES.get();
@@ -199,7 +201,7 @@ public class RiceBlock extends BushBlock implements BonemealableBlock, LiquidBlo
 	}
 
 	@Override
-	public boolean canPlaceLiquid(@Nullable Player player, BlockGetter level, BlockPos pos, BlockState state, Fluid fluid) {
+	public boolean canPlaceLiquid(@Nullable LivingEntity player, BlockGetter level, BlockPos pos, BlockState state, Fluid fluid) {
 		return false;
 	}
 

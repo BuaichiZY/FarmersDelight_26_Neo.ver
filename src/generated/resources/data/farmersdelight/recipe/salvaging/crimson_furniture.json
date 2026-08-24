@@ -2,35 +2,17 @@
   "type": "farmersdelight:cutting",
   "ingredients": [
     {
-      "type": "neoforge:compound",
+      "neoforge:ingredient_type": "neoforge:compound",
       "children": [
-        {
-          "item": "minecraft:crimson_door"
-        },
-        {
-          "item": "minecraft:crimson_trapdoor"
-        },
-        {
-          "item": "minecraft:crimson_sign"
-        },
-        {
-          "item": "minecraft:crimson_hanging_sign"
-        },
-        {
-          "item": "minecraft:crimson_fence"
-        },
-        {
-          "item": "minecraft:crimson_fence_gate"
-        },
-        {
-          "item": "minecraft:crimson_pressure_plate"
-        },
-        {
-          "item": "minecraft:crimson_button"
-        },
-        {
-          "item": "farmersdelight:crimson_cabinet"
-        }
+        "minecraft:crimson_door",
+        "minecraft:crimson_trapdoor",
+        "minecraft:crimson_sign",
+        "minecraft:crimson_hanging_sign",
+        "minecraft:crimson_fence",
+        "minecraft:crimson_fence_gate",
+        "minecraft:crimson_pressure_plate",
+        "minecraft:crimson_button",
+        "farmersdelight:crimson_cabinet"
       ]
     }
   ],
@@ -43,13 +25,14 @@
       }
     }
   ],
-  "tool": [
+  "tool": {
+    "neoforge:ingredient_type": "neoforge:compound",
+    "children": [
     {
-      "type": "farmersdelight:item_ability",
+      "neoforge:ingredient_type": "farmersdelight:item_ability",
       "action": "axe_dig"
     },
-    {
-      "tag": "minecraft:axes"
-    }
+    "#minecraft:axes"
   ]
+  }
 }
