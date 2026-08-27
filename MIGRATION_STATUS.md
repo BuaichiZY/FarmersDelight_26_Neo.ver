@@ -6,7 +6,7 @@
 - Source branch: `1.21`
 - Baseline commit: `71abf1c0` (`Bump version`)
 - Target Minecraft: `26.2`
-- Target/minimum NeoForge: `26.2.0.69`
+- Target/minimum NeoForge: `26.2.0.67`
 - ModDevGradle: `2.0.144`
 - JEI development runtime: `30.26.0.186`
 - Compiler/runtime: project-local Java 25 toolchain
@@ -28,6 +28,9 @@ project folder, and project sources contain no machine-specific absolute paths.
 - `clean build` succeeds and produces both
   `build/libs/FarmersDelight-26.2-1.3.3.jar` and
   `build/libs/FarmersDelight-26.2-1.3.3_source.jar`.
+- The distributed NeoForge dependency range is `[26.2.0.67,)`. The project is
+  compiled and runtime-tested on the exact lower bound instead of relying on
+  APIs introduced by a newer NeoForge build.
 - The 26.2 client completes mod discovery, applies all mixins, reloads assets,
   bakes models and atlases, loads JEI, and reaches the main menu without a
   Farmer's Delight error, missing model, or missing texture.
