@@ -1,6 +1,6 @@
 # FarmersDelight_26.1.2_Neo
 
-This is an unofficial port of Farmer's Delight for newer Minecraft versions. It allows you to use Farmer's Delight on Minecraft 26.1.2 with NeoForge 26.1.2.95 or later.
+This is an unofficial port of Farmer's Delight for newer Minecraft versions. It allows you to use Farmer's Delight on Minecraft 26.1.2 or 26.2 with NeoForge 26.1.2.95 or later and NeoForge 26.2.0.57 or later.
 This mod is ported from the original Farmer's Delight 1.21.1-1.3.3 release and implements most of its original features. If you encounter any bugs or issues, please report them here instead of submitting bug reports to the official Farmer's Delight project.
 
 All original concepts and source code are credited to [vectorwing](https://github.com/vectorwing) and the contributors to [the original Farmer's Delight project](https://github.com/vectorwing/FarmersDelight).
