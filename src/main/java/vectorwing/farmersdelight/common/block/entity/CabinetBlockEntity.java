@@ -151,7 +151,7 @@ public class CabinetBlockEntity extends RandomizableContainerBlockEntity
 		level.playSound(null, x, y, z, sound, SoundSource.BLOCKS, 0.5F, level.getRandom().nextFloat() * 0.1F + 0.9F);
 	}
 
-	/** Native NeoForge 26.1 transactional storage shared by automation and the cabinet container. */
+	/** Native NeoForge 26.2 transactional storage shared by automation and the cabinet container. */
 	private final class CabinetStorage extends ItemStacksResourceHandler
 	{
 		private CabinetStorage(int size) {

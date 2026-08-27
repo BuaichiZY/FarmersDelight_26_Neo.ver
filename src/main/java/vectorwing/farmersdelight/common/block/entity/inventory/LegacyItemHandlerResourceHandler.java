@@ -14,7 +14,7 @@ import java.util.function.BiConsumer;
 
 /**
  * Transaction-aware bridge used while Farmer's Delight's internal inventories still expose the
- * legacy item-handler API. NeoForge 26.1 exposes automation through ResourceHandler instead.
+ * legacy item-handler API. NeoForge 26.2 exposes automation through ResourceHandler instead.
  */
 @SuppressWarnings("removal")
 public final class LegacyItemHandlerResourceHandler implements ResourceHandler<ItemResource>

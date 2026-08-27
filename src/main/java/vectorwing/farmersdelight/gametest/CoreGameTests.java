@@ -14,6 +14,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -53,7 +54,7 @@ import vectorwing.farmersdelight.common.tag.ModTags;
 import java.util.function.Consumer;
 
 /**
- * Small runtime regression suite for the 26.1 port. These tests are only registered when
+ * Small runtime regression suite for the 26.2 port. These tests are only registered when
  * NeoForge enables GameTests, so they do not add any production-world content.
  */
 @SuppressWarnings("removal")
@@ -143,7 +144,7 @@ public final class CoreGameTests
 				"Tomato is missing its consumable component");
 		helper.assertTrue(skillet.get(DataComponents.WEAPON) != null
 					&& skillet.get(DataComponents.WEAPON).itemDamagePerAttack() == 1,
-				"Skillet is missing its 26.1 weapon component");
+				"Skillet is missing its 26.2 weapon component");
 		helper.assertTrue(skillet.getSwingAnimation().type() == SwingAnimationType.WHACK
 					&& skillet.getSwingAnimation().duration() == 6,
 				"Skillet does not use the original six-tick whack animation");
@@ -161,9 +162,9 @@ public final class CoreGameTests
 				"Brown mushroom cannot survive on organic compost");
 		Player mockPlayer = helper.makeMockPlayer(GameType.SURVIVAL);
 		mockPlayer.setItemInHand(InteractionHand.MAIN_HAND, skillet);
-		var target = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, BlockPos.ZERO);
+		var target = helper.spawnWithNoFreeWill(EntityTypes.ZOMBIE, BlockPos.ZERO);
 		helper.assertTrue(skillet.hurtEnemy(target, mockPlayer),
-				"Skillet did not enter the 26.1 weapon post-hit pipeline");
+				"Skillet did not enter the 26.2 weapon post-hit pipeline");
 		skillet.postHurtEnemy(target, mockPlayer);
 		helper.assertValueEqual(skillet.getDamageValue(), 1, "skillet durability after one attack");
 		target.discard();

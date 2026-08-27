@@ -106,15 +106,15 @@ public class ModBlocks
 	public static final Supplier<Block> RICE_BALE = register("rice_bale",
 			() -> new RiceBaleBlock(propertiesOfFullCopy(Blocks.HAY_BLOCK)));
 	public static final Supplier<Block> RICE_BAG = register("rice_bag",
-			() -> new Block(propertiesOfFullCopy(Blocks.WHITE_WOOL)));
+			() -> new Block(propertiesOfFullCopy(Blocks.WOOL.white())));
 	public static final Supplier<Block> STRAW_BALE = register("straw_bale",
 			() -> new StrawBaleBlock(propertiesOfFullCopy(Blocks.HAY_BLOCK)));
 
 	// Building
 	public static final Supplier<Block> ROPE = register("rope",
-			() -> new RopeBlock(propertiesOfFullCopy(Blocks.BROWN_CARPET).noCollision().noOcclusion().strength(0.2F).sound(SoundType.WOOL)));
+			() -> new RopeBlock(propertiesOfFullCopy(Blocks.CARPET.brown()).noCollision().noOcclusion().strength(0.2F).sound(SoundType.WOOL)));
 	public static final Supplier<Block> SAFETY_NET = register("safety_net",
-			() -> new SafetyNetBlock(propertiesOfFullCopy(Blocks.BROWN_CARPET).strength(0.2F).sound(SoundType.WOOL)));
+			() -> new SafetyNetBlock(propertiesOfFullCopy(Blocks.CARPET.brown()).strength(0.2F).sound(SoundType.WOOL).bounceRestitution(0.6F)));
 	public static final Supplier<Block> ROPE_FENCE = register("rope_fence",
 			() -> new RopeFenceBlock(propertiesOfFullCopy(Blocks.OAK_FENCE).strength(1.0F)));
 	public static final Supplier<Block> ROPE_FENCE_GATE = register("rope_fence_gate",
@@ -142,13 +142,13 @@ public class ModBlocks
 	public static final Supplier<Block> WARPED_CABINET = register("warped_cabinet",
 			() -> new CabinetBlock(propertiesOfFullCopy(Blocks.BARREL).sound(SoundType.NETHER_WOOD)));
 	public static final Supplier<Block> CANVAS_RUG = register("canvas_rug",
-			() -> new CanvasRugBlock(propertiesOfFullCopy(Blocks.WHITE_CARPET).sound(SoundType.GRASS).strength(0.2F)));
+			() -> new CanvasRugBlock(propertiesOfFullCopy(Blocks.CARPET.white()).sound(SoundType.GRASS).strength(0.2F)));
 	public static final Supplier<Block> TATAMI = register("tatami",
-			() -> new TatamiBlock(propertiesOfFullCopy(Blocks.WHITE_WOOL)));
+			() -> new TatamiBlock(propertiesOfFullCopy(Blocks.WOOL.white())));
 	public static final Supplier<Block> FULL_TATAMI_MAT = register("full_tatami_mat",
-			() -> new TatamiMatBlock(propertiesOfFullCopy(Blocks.WHITE_WOOL).strength(0.3F)));
+			() -> new TatamiMatBlock(propertiesOfFullCopy(Blocks.WOOL.white()).strength(0.3F)));
 	public static final Supplier<Block> HALF_TATAMI_MAT = register("half_tatami_mat",
-			() -> new TatamiHalfMatBlock(propertiesOfFullCopy(Blocks.WHITE_WOOL).strength(0.3F).pushReaction(PushReaction.DESTROY)));
+			() -> new TatamiHalfMatBlock(propertiesOfFullCopy(Blocks.WOOL.white()).strength(0.3F).pushReaction(PushReaction.DESTROY)));
 
 	public static final Supplier<Block> CANVAS_SIGN = register("canvas_sign",
 			() -> new StandingCanvasSignBlock(null));

@@ -61,7 +61,7 @@ public class ModItems
 		if (key == null) {
 			throw new IllegalStateException("Item properties requested outside a Farmer's Delight registration");
 		}
-		// Most direct callers below register a placeable block item. Minecraft 26.1
+		// Most direct callers below register a placeable block item. Minecraft 26.2
 		// defaults keyed properties to item.* translation keys, so preserve the
 		// official language files' block.* keys unless an item helper opts back in.
 		return new Item.Properties().setId(key).useBlockDescriptionPrefix();
@@ -91,7 +91,7 @@ public class ModItems
 			() -> new CookingPotItem(ModBlocks.COOKING_POT.get(), basicItem().stacksTo(1)));
 	public static final Supplier<Item> SKILLET = registerWithTab("skillet",
 			() -> new SkilletItem(ModBlocks.SKILLET.get(), basicItem().stacksTo(1)
-					// Minecraft 26.1 repeats held attacks according to the effective attack-speed
+					// Minecraft 26.2 repeats held attacks according to the effective attack-speed
 					// attribute. A -2 modifier yields the roughly half-second cadence demonstrated
 					// by the original version, while retaining its six-tick whack animation.
 					.attributes(SkilletItem.createAttributes(SkilletItem.SKILLET_TIER, 5.0F, -2.0F))

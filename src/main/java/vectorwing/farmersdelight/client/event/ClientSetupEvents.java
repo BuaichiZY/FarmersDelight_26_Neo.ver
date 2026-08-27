@@ -18,7 +18,6 @@ import org.jetbrains.annotations.Nullable;
 import vectorwing.farmersdelight.FarmersDelight;
 import vectorwing.farmersdelight.client.gui.CookingPotScreen;
 import vectorwing.farmersdelight.client.gui.CookingPotTooltip;
-import vectorwing.farmersdelight.client.gui.CanvasSignEditScreen;
 import vectorwing.farmersdelight.client.gui.HUDOverlays;
 import vectorwing.farmersdelight.client.particle.SparkleParticle;
 import vectorwing.farmersdelight.client.particle.StarParticle;
@@ -52,14 +51,6 @@ public class ClientSetupEvents
 		event.register(
 				net.minecraft.resources.Identifier.fromNamespaceAndPath(FarmersDelight.MODID, "skillet"),
 				SkilletItemRenderer.Unbaked.MAP_CODEC
-		);
-	}
-
-	@SubscribeEvent
-	public static void registerPictureInPictureRenderers(RegisterPictureInPictureRenderersEvent event) {
-		event.register(
-				CanvasSignEditScreen.CanvasSignGuiRenderState.class,
-				CanvasSignEditScreen.CanvasSignGuiRenderer::new
 		);
 	}
 

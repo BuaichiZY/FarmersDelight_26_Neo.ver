@@ -1,6 +1,6 @@
 package vectorwing.farmersdelight.common.item;
 
-import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.triggers.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
@@ -158,7 +158,7 @@ public class SkilletItem extends BlockItem
 				return InteractionResult.CONSUME;
 			}
 
-			// Arbitrary recipes are no longer synchronized to ClientLevel in 26.1.
+			// Arbitrary recipes are no longer synchronized to ClientLevel in 26.2.
 			// Start the predicted use animation client-side and let the server perform
 			// the authoritative campfire-recipe check below.
 			if (level.isClientSide()) {

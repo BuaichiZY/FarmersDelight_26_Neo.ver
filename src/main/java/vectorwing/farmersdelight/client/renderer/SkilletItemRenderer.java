@@ -24,7 +24,7 @@ import vectorwing.farmersdelight.common.registry.ModDataComponents;
 import java.util.function.Consumer;
 
 /**
- * Renders the ingredient stored in a handheld skillet through the 26.1 special
+ * Renders the ingredient stored in a handheld skillet through the 26.2 special
  * item-model pipeline. The skillet body remains a regular cuboid item model.
  */
 public final class SkilletItemRenderer implements SpecialModelRenderer<SkilletItemRenderer.RenderData>

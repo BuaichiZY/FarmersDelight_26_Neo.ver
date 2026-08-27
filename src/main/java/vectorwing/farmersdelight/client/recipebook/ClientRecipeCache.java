@@ -4,7 +4,7 @@ import net.minecraft.world.item.crafting.RecipeMap;
 
 /**
  * Holds the full recipe contents explicitly synchronized by NeoForge.
- * Vanilla's 26.1 client recipe access only exposes recipe-book displays and
+ * Vanilla's 26.2 client recipe access only exposes recipe-book displays and
  * cannot provide custom recipe objects to recipe-viewer integrations.
  */
 public final class ClientRecipeCache

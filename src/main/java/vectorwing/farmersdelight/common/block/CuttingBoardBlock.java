@@ -80,7 +80,7 @@ public class CuttingBoardBlock extends BaseEntityBlock implements SimpleWaterlog
 			if (!player.isCreative()) {
 				player.getInventory().add(removedStack);
 			}
-			Vec3 centerPos = pos.getCenter();
+		Vec3 centerPos = Vec3.atCenterOf(pos);
 			level.playSound(null, centerPos.x(), centerPos.y(), centerPos.z(), ModSounds.BLOCK_CUTTING_BOARD_REMOVE.get(), SoundSource.BLOCKS, 0.25F, 0.5F);
 			return InteractionResult.SUCCESS;
 		}
@@ -92,7 +92,7 @@ public class CuttingBoardBlock extends BaseEntityBlock implements SimpleWaterlog
 			if (!player.isCreative()) {
 				player.setItemSlot(EquipmentSlot.MAINHAND, remainderStack);
 			}
-			Vec3 centerPos = pos.getCenter();
+		Vec3 centerPos = Vec3.atCenterOf(pos);
 			level.playSound(null, centerPos.x(), centerPos.y(), centerPos.z(), ModSounds.BLOCK_CUTTING_BOARD_PLACE.get(), SoundSource.BLOCKS, 1.0F, 0.8F);
 			return InteractionResult.SUCCESS;
 		} else {
@@ -219,7 +219,7 @@ public class CuttingBoardBlock extends BaseEntityBlock implements SimpleWaterlog
 				if (!player.isCreative()) {
 					player.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
 				}
-				Vec3 centerPos = pos.getCenter();
+		Vec3 centerPos = Vec3.atCenterOf(pos);
 				level.playSound(null, centerPos.x(), centerPos.y(), centerPos.z(), ModSounds.BLOCK_CUTTING_BOARD_CARVE.get(), SoundSource.BLOCKS, 1.0F, 0.8F);
 				event.setCanceled(true);
 				event.setCancellationResult(InteractionResult.SUCCESS);

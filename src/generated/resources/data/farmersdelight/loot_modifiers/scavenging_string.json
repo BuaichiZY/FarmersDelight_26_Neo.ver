@@ -19,14 +19,14 @@
           "condition": "minecraft:entity_properties",
           "entity": "this",
           "predicate": {
-            "type": "minecraft:spider"
+            "minecraft:entity_type": "minecraft:spider"
           }
         },
         {
           "condition": "minecraft:entity_properties",
           "entity": "this",
           "predicate": {
-            "type": "minecraft:cave_spider"
+            "minecraft:entity_type": "minecraft:cave_spider"
           }
         }
       ]

@@ -43,6 +43,22 @@ base {
     archivesName = 'FarmersDelight'
 }
 
+def sourcesJar = tasks.register('sourcesJar', Jar) {
+    group = 'build'
+    description = 'Packages the sources and authored resources for this port.'
+    archiveFileName = "FarmersDelight-${minecraft_version}-${mod_version}_source.jar"
+    from sourceSets.main.java
+    from('src/main/resources')
+    from('src/generated/resources') {
+        exclude '.cache/**'
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.named('assemble').configure {
+    dependsOn sourcesJar
+}
+
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 def java25Launcher = javaToolchains.launcherFor {
@@ -119,9 +135,11 @@ neoForge {
 }
 
 def generatedItemDefinitionsDir = layout.buildDirectory.dir('generated/item-definitions')
+def legacyItemModelRoot = file('src/generated/resources/assets/farmersdelight/models/item')
+def itemDefinitionModId = mod_id.toString()
 
 def generateItemDefinitions = tasks.register('generateItemDefinitions') {
-    def legacyItemModels = fileTree('src/generated/resources/assets/farmersdelight/models/item') {
+    def legacyItemModels = fileTree(legacyItemModelRoot) {
         include '**/*.json'
     }
     def authoredItemDefinitions = file('src/main/resources/assets/farmersdelight/items')
@@ -132,19 +150,19 @@ def generateItemDefinitions = tasks.register('generateItemDefinitions') {
 
     doLast {
         def outputRoot = generatedItemDefinitionsDir.get().asFile
-        delete(outputRoot)
+        outputRoot.deleteDir()
+        outputRoot.mkdirs()
 
         legacyItemModels.files.sort { it.path }.each { modelFile ->
-            def modelRoot = file('src/generated/resources/assets/farmersdelight/models/item')
-            def relativePath = modelRoot.toPath().relativize(modelFile.toPath()).toString().replace('\\', '/')
+            def relativePath = legacyItemModelRoot.toPath().relativize(modelFile.toPath()).toString().replace('\\', '/')
             if (new File(authoredItemDefinitions, relativePath).exists()) {
                 return
             }
 
             def itemId = relativePath.substring(0, relativePath.length() - '.json'.length())
-            def outputFile = new File(outputRoot, "assets/${mod_id}/items/${relativePath}")
+            def outputFile = new File(outputRoot, "assets/${itemDefinitionModId}/items/${relativePath}")
             outputFile.parentFile.mkdirs()
-            def definition = [model: [type: 'minecraft:model', model: "${mod_id}:item/${itemId}"]]
+            def definition = [model: [type: 'minecraft:model', model: "${itemDefinitionModId}:item/${itemId}"]]
             outputFile.setText(JsonOutput.prettyPrint(JsonOutput.toJson(definition)) + System.lineSeparator(), 'UTF-8')
         }
     }
@@ -182,7 +200,7 @@ configurations {
 }
 
 dependencies {
-    // Compile against and test with the official 26.1.2 JEI artifact.
+    // Compile against and test with the official 26.2 JEI artifact.
     // JEI remains optional for the distributed Farmer's Delight jar.
     def jeiDependency = "maven.modrinth:jei:${jei_modrinth_version}"
     compileOnly jeiDependency
@@ -190,7 +208,7 @@ dependencies {
 
     if (enableOptionalIntegrations) {
         // These coordinates target the upstream 1.21 branch and remain disabled
-        // until each integration publishes and is migrated for Minecraft 26.1.2.
+        // until each integration publishes and is migrated for Minecraft 26.2.
         compileOnly "dev.emi:emi-neoforge:${emi_version}:api"
         compileOnly "squeek.appleskin:appleskin-neoforge:${appleskin_version}:api"
 
