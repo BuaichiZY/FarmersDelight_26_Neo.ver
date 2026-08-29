@@ -43,6 +43,22 @@ base {
     archivesName = 'FarmersDelight'
 }
 
+def sourcesJar = tasks.register('sourcesJar', Jar) {
+    group = 'build'
+    description = 'Packages the sources and authored resources for this port.'
+    archiveFileName = "FarmersDelight-${minecraft_version}-${mod_version}_source.jar"
+    from sourceSets.main.java
+    from('src/main/resources')
+    from('src/generated/resources') {
+        exclude '.cache/**'
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.named('assemble').configure {
+    dependsOn sourcesJar
+}
+
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 def java25Launcher = javaToolchains.launcherFor {
