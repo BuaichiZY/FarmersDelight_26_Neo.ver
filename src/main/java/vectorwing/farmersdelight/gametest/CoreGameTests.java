@@ -13,6 +13,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -26,6 +27,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SwingAnimationType;
+import net.minecraft.world.item.component.Consumable;
+import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
@@ -48,6 +51,7 @@ import vectorwing.farmersdelight.common.block.RichSoilBlock;
 import vectorwing.farmersdelight.common.block.RichSoilFarmlandBlock;
 import vectorwing.farmersdelight.common.block.entity.CabinetBlockEntity;
 import vectorwing.farmersdelight.common.registry.ModBlocks;
+import vectorwing.farmersdelight.common.registry.ModEffects;
 import vectorwing.farmersdelight.common.registry.ModItems;
 import vectorwing.farmersdelight.common.tag.ModTags;
 
@@ -138,6 +142,21 @@ public final class CoreGameTests
 	private static void testItemDataAndTags(GameTestHelper helper) {
 		ItemStack tomato = new ItemStack(ModItems.TOMATO.get());
 		ItemStack skillet = new ItemStack(ModItems.SKILLET.get());
+		ItemStack beefStew = new ItemStack(ModItems.BEEF_STEW.get());
+		Consumable beefStewConsumable = beefStew.get(DataComponents.CONSUMABLE);
+		helper.assertTrue(beefStewConsumable != null, "Beef stew is missing its consumable component");
+		MobEffectInstance nourishment = beefStewConsumable.onConsumeEffects().stream()
+				.filter(ApplyStatusEffectsConsumeEffect.class::isInstance)
+				.map(ApplyStatusEffectsConsumeEffect.class::cast)
+				.flatMap(effect -> effect.effects().stream())
+				.findFirst()
+				.orElseThrow(() -> helper.assertionException("Beef stew is missing its Nourishment effect"));
+		helper.assertTrue(nourishment.getEffect() == ModEffects.NOURISHMENT.getDelegate(),
+				"Nourishment item data retained the DeferredHolder wrapper");
+		var consumingEntity = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(2, 0, 0));
+		beefStew.finishUsingItem(helper.getLevel(), consumingEntity);
+		helper.assertLivingEntityHasMobEffect(consumingEntity, ModEffects.NOURISHMENT.getDelegate(), 0);
+		consumingEntity.discard();
 		helper.assertTrue(tomato.get(DataComponents.FOOD) != null,
 				"Tomato is missing its food component");
 		helper.assertTrue(tomato.get(DataComponents.CONSUMABLE) != null,

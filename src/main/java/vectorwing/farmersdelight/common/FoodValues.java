@@ -71,7 +71,10 @@ public class FoodValues
 	}
 
 	public static MobEffectInstance nourishment(int duration) {
-		return new MobEffectInstance(ModEffects.NOURISHMENT, duration, 0, false, false);
+		// Store the registry's real Holder.Reference in the item component. Hybrid
+		// Bukkit servers do not recognize NeoForge's DeferredHolder wrapper when
+		// converting potion-effect events to their Bukkit representation.
+		return new MobEffectInstance(ModEffects.NOURISHMENT.getDelegate(), duration, 0, false, false);
 	}
 
 	// Raw Crops
