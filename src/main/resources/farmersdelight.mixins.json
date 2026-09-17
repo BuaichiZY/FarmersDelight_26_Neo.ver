@@ -8,12 +8,10 @@
     "datafix.V3818_3Mixin",
     "CampfireBaleMixin",
     "CuttingBoardDispenserMixin",
-    "KeepRichSoilUntrampledMixin",
     "FoodDataAccessor",
     "NourishmentAlwaysEatMixin",
     "PlacePumpkinPieMixin",
-    "RopeFenceConnectionMixin",
-    "VillagerAccessor"
+    "RopeFenceConnectionMixin"
   ],
   "client": [
     "CanvasSignEditScreenMixin",

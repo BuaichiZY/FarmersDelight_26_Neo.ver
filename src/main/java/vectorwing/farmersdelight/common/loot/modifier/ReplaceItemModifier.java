@@ -6,6 +6,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Holder;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -14,6 +15,7 @@ import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
 import net.neoforged.neoforge.common.loot.LootModifier;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class ReplaceItemModifier extends LootModifier
@@ -36,11 +38,11 @@ public class ReplaceItemModifier extends LootModifier
 	 * This loot modifier removes all instances of the specified item, replacing it by another specified addition.
 	 */
 	public ReplaceItemModifier(LootItemCondition[] conditions, Item removedItem, Item addedItem, int addedCount) {
-		this(conditions, IGlobalLootModifier.DEFAULT_PRIORITY, removedItem, addedItem, addedCount);
+		this(LootModifierConditions.combine(conditions), IGlobalLootModifier.DEFAULT_PRIORITY, removedItem, addedItem, addedCount);
 	}
 
-	public ReplaceItemModifier(LootItemCondition[] conditions, int priority, Item removedItem, Item addedItem, int addedCount) {
-		super(conditions, priority);
+	public ReplaceItemModifier(Optional<Holder<LootItemCondition>> condition, int priority, Item removedItem, Item addedItem, int addedCount) {
+		super(condition, priority);
 		this.removedItem = removedItem;
 		this.addedItem = addedItem;
 		this.addedCount = addedCount;

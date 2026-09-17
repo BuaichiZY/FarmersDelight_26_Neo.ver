@@ -2,6 +2,7 @@ package vectorwing.farmersdelight.common.loot.function;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -15,7 +16,6 @@ import vectorwing.farmersdelight.FarmersDelight;
 import vectorwing.farmersdelight.common.registry.ModLootFunctions;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.List;
 import java.util.Optional;
 
 @ParametersAreNonnullByDefault
@@ -26,8 +26,8 @@ public class SmokerCookFunction extends LootItemConditionalFunction
 			p_298131_ -> commonFields(p_298131_).apply(p_298131_, SmokerCookFunction::new)
 	);
 
-	protected SmokerCookFunction(List<LootItemCondition> conditionsIn) {
-		super(conditionsIn);
+	protected SmokerCookFunction(Optional<Holder<LootItemCondition>> condition) {
+		super(condition);
 	}
 
 	@Override

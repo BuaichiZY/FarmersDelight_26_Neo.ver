@@ -2,6 +2,7 @@ package vectorwing.farmersdelight.data;
 
 import net.minecraft.advancements.criterion.*;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
@@ -32,6 +33,7 @@ import vectorwing.farmersdelight.common.tag.ModTags;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class LootModifiers extends GlobalLootModifierProvider
@@ -95,7 +97,8 @@ public class LootModifiers extends GlobalLootModifierProvider
 	}
 
 	private AddTableLootModifier addNewLootPool(ResourceKey<LootTable> lootToAddTo, ResourceKey<LootTable> newPool) {
-		return new AddTableLootModifier(new LootItemCondition[]{LootTableIdCondition.builder(lootToAddTo.location()).build()}, newPool);
+		return new AddTableLootModifier(Optional.of(Holder.direct(LootTableIdCondition.builder(lootToAddTo.location()).build())),
+				net.neoforged.neoforge.common.loot.IGlobalLootModifier.DEFAULT_PRIORITY, newPool);
 	}
 
 	private AddItemModifier addItemOnPlayerKill(Item item, float chance, EntityType<?>... entity) {

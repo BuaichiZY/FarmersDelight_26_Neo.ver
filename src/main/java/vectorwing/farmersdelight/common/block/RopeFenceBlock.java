@@ -1,6 +1,5 @@
 package vectorwing.farmersdelight.common.block;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
@@ -31,14 +30,7 @@ import vectorwing.farmersdelight.common.registry.ModBlocks;
 
 public class RopeFenceBlock extends CrossCollisionBlock
 {
-	public static final MapCodec<RopeFenceBlock> CODEC = simpleCodec(RopeFenceBlock::new);
-
 	public static final VoxelShape POST = Block.box(7.0F, 0.0F, 7.0F, 9.0F, 16.0F, 9.0F);
-
-	@Override
-	protected MapCodec<? extends CrossCollisionBlock> codec() {
-		return CODEC;
-	}
 
 	public RopeFenceBlock(Properties properties) {
 		super(1.0F, 1.0F, 16.0F, 16.0F, 24.0F, properties);

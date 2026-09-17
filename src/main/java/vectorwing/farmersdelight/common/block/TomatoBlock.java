@@ -5,6 +5,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -16,6 +17,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.BonemealSource;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -176,7 +178,7 @@ public class TomatoBlock extends CropBlock
 	}
 
 	@Override
-	public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
+	public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state, BonemealSource source) {
 		if (!this.isMaxAge(state)) {
 			return true;
 		}
@@ -200,7 +202,7 @@ public class TomatoBlock extends CropBlock
 	}
 
 	@Override
-	public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
+	public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
 		// TODO: Remove this conversion, as well as the ropelogged state, in future versions.
 		if (state.is(ModBlocks.TOMATO_CROP.get()) && state.getValue(ROPELOGGED)) {
 			level.setBlockAndUpdate(pos, ModBlocks.TOMATO_CROP_ON_ROPE.get().defaultBlockState().setValue(VINE_AGE, this.getAge(state)));
@@ -216,8 +218,8 @@ public class TomatoBlock extends CropBlock
 			BlockState aboveState = level.getBlockState(pos.above());
 			if (canClimbBlock(level.getBlockState(pos.above()))) {
 				climbRopeAbove(level, pos);
-			} else if (aboveState.is(ModBlocks.TOMATO_CROP_ON_ROPE.get()) && isValidBonemealTarget(level, pos, aboveState)) {
-				performBonemeal(level, random, pos.above(), aboveState);
+			} else if (aboveState.is(ModBlocks.TOMATO_CROP_ON_ROPE.get()) && isValidBonemealTarget(level, pos, aboveState, source)) {
+				performBonemeal(level, random, pos.above(), aboveState, source);
 			}
 		}
 	}
@@ -249,7 +251,7 @@ public class TomatoBlock extends CropBlock
 
 	@Deprecated(forRemoval = true)
 	@Override
-	public void playerDestroy(Level level, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ItemStack stack) {
+	public void playerDestroy(ServerLevel level, ServerPlayer player, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ItemStack stack) {
 		super.playerDestroy(level, player, pos, state, blockEntity, stack);
 
 		if (state.hasProperty(TomatoBlock.ROPELOGGED) && state.getValue(TomatoBlock.ROPELOGGED)) {

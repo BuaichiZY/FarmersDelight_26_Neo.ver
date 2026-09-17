@@ -89,10 +89,10 @@ public class CuttingBoardRenderer implements BlockEntityRenderer<CuttingBoardBlo
 
 		// Rotate item to face the cutting board's front side
 		float f = -direction.toYRot();
-		matrixStackIn.mulPose(Axis.YP.rotationDegrees(f));
+		matrixStackIn.rotateDegrees(Axis.YP, f);
 
 		// Rotate item flat on the cutting board. Use X and Y from now on
-		matrixStackIn.mulPose(Axis.XP.rotationDegrees(90.0F));
+		matrixStackIn.rotateDegrees(Axis.XP, 90.0F);
 
 		// Resize the item
 		matrixStackIn.scale(0.6F, 0.6F, 0.6F);
@@ -104,7 +104,7 @@ public class CuttingBoardRenderer implements BlockEntityRenderer<CuttingBoardBlo
 
 		// Rotate block to face the cutting board's front side
 		float f = -direction.toYRot();
-		matrixStackIn.mulPose(Axis.YP.rotationDegrees(f));
+		matrixStackIn.rotateDegrees(Axis.YP, f);
 
 		// Resize the block
 		matrixStackIn.scale(0.8F, 0.8F, 0.8F);
@@ -116,19 +116,18 @@ public class CuttingBoardRenderer implements BlockEntityRenderer<CuttingBoardBlo
 
 		// Rotate item to face the cutting board's front side
 		float f = -direction.toYRot() + 180;
-		matrixStackIn.mulPose(Axis.YP.rotationDegrees(f));
+		matrixStackIn.rotateDegrees(Axis.YP, f);
 
 		// Rotate item to be carved on the surface, A little less so for hoes and pickaxes.
-		Item toolItem = itemStack.getItem();
 		float poseAngle;
-		if (itemStack.is(ItemTags.PICKAXES) || toolItem instanceof HoeItem) {
+		if (itemStack.is(ItemTags.PICKAXES) || itemStack.is(ItemTags.HOES)) {
 			poseAngle = 225.0F;
-		} else if (toolItem instanceof TridentItem) {
+		} else if (itemStack.getItem() instanceof TridentItem) {
 			poseAngle = 135.0F;
 		} else {
 			poseAngle = 180.0F;
 		}
-		matrixStackIn.mulPose(Axis.ZP.rotationDegrees(poseAngle));
+		matrixStackIn.rotateDegrees(Axis.ZP, poseAngle);
 
 		// Resize the item
 		matrixStackIn.scale(0.6F, 0.6F, 0.6F);

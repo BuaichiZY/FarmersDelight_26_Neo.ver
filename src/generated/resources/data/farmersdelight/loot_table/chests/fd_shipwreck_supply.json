@@ -6,65 +6,57 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": {
-                "type": "minecraft:uniform",
-                "max": 4.0,
-                "min": 2.0
-              },
-              "function": "minecraft:set_count"
+          "modifier": {
+            "type": "minecraft:set_count",
+            "add": false,
+            "count": {
+              "type": "minecraft:uniform",
+              "max": 4.0,
+              "min": 2.0
             }
-          ],
+          },
           "name": "farmersdelight:tomato_seeds",
           "weight": 6
         },
         {
           "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": {
-                "type": "minecraft:uniform",
-                "max": 4.0,
-                "min": 2.0
-              },
-              "function": "minecraft:set_count"
+          "modifier": {
+            "type": "minecraft:set_count",
+            "add": false,
+            "count": {
+              "type": "minecraft:uniform",
+              "max": 4.0,
+              "min": 2.0
             }
-          ],
+          },
           "name": "farmersdelight:cabbage_seeds",
           "weight": 6
         },
         {
           "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": {
-                "type": "minecraft:uniform",
-                "max": 4.0,
-                "min": 2.0
-              },
-              "function": "minecraft:set_count"
+          "modifier": {
+            "type": "minecraft:set_count",
+            "add": false,
+            "count": {
+              "type": "minecraft:uniform",
+              "max": 4.0,
+              "min": 2.0
             }
-          ],
+          },
           "name": "farmersdelight:onion",
           "weight": 6
         },
         {
           "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": {
-                "type": "minecraft:uniform",
-                "max": 4.0,
-                "min": 2.0
-              },
-              "function": "minecraft:set_count"
+          "modifier": {
+            "type": "minecraft:set_count",
+            "add": false,
+            "count": {
+              "type": "minecraft:uniform",
+              "max": 4.0,
+              "min": 2.0
             }
-          ],
+          },
           "name": "farmersdelight:rice",
           "weight": 6
         }
@@ -80,17 +72,15 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": {
-                "type": "minecraft:uniform",
-                "max": 12.0,
-                "min": 4.0
-              },
-              "function": "minecraft:set_count"
+          "modifier": {
+            "type": "minecraft:set_count",
+            "add": false,
+            "count": {
+              "type": "minecraft:uniform",
+              "max": 12.0,
+              "min": 4.0
             }
-          ],
+          },
           "name": "farmersdelight:rope",
           "weight": 2
         },

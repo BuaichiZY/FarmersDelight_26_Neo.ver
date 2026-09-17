@@ -3,6 +3,7 @@ package vectorwing.farmersdelight.common.mixin;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.entity.SignTextSlot;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -22,13 +23,13 @@ public class CanvasSignEditScreenMixin
 	protected Minecraft minecraft;
 
 	@Inject(at = @At(value = "HEAD"), method = "openTextEdit", cancellable = true)
-	private void openCanvasSignEditScreen(SignBlockEntity sign, boolean isFront, CallbackInfo ci) {
+	private void openCanvasSignEditScreen(SignBlockEntity sign, SignTextSlot slot, CallbackInfo ci) {
 		if (sign instanceof CanvasSignBlockEntity) {
-			minecraft.gui.setScreen(new CanvasSignEditScreen(sign, isFront, minecraft.isTextFilteringEnabled()));
+			minecraft.gui.setScreen(new CanvasSignEditScreen(sign, slot, minecraft.isTextFilteringEnabled()));
 			ci.cancel();
 		}
 		if (sign instanceof HangingCanvasSignBlockEntity) {
-			minecraft.gui.setScreen(new HangingCanvasSignEditScreen(sign, isFront, minecraft.isTextFilteringEnabled()));
+			minecraft.gui.setScreen(new HangingCanvasSignEditScreen(sign, slot, minecraft.isTextFilteringEnabled()));
 			ci.cancel();
 		}
 	}

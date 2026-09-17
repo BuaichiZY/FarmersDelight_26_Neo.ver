@@ -148,7 +148,7 @@ public class ModBlocks
 	public static final Supplier<Block> FULL_TATAMI_MAT = register("full_tatami_mat",
 			() -> new TatamiMatBlock(propertiesOfFullCopy(Blocks.WOOL.white()).strength(0.3F)));
 	public static final Supplier<Block> HALF_TATAMI_MAT = register("half_tatami_mat",
-			() -> new TatamiHalfMatBlock(propertiesOfFullCopy(Blocks.WOOL.white()).strength(0.3F).pushReaction(PushReaction.DESTROY)));
+			() -> new TatamiHalfMatBlock(propertiesOfFullCopy(Blocks.WOOL.white()).strength(0.3F).pushReaction(PushReaction.POPPED)));
 
 	public static final Supplier<Block> CANVAS_SIGN = register("canvas_sign",
 			() -> new StandingCanvasSignBlock(null));
@@ -348,7 +348,7 @@ public class ModBlocks
 	public static final DeferredHolder<Block, TomatoBlock> TOMATO_CROP = register("tomatoes",
 			() -> new TomatoBlock(properties().noCollision().randomTicks().instabreak().sound(SoundType.CROP)));
 	public static final DeferredHolder<Block, HangingTomatoBlock> TOMATO_CROP_ON_ROPE = register("tomatoes_on_rope",
-			() -> new HangingTomatoBlock(propertiesOfFullCopy(ModBlocks.TOMATO_CROP.get()).pushReaction(PushReaction.NORMAL)));
+			() -> new HangingTomatoBlock(propertiesOfFullCopy(ModBlocks.TOMATO_CROP.get()).pushReaction(PushReaction.PUSH_PULL)));
 	public static final Supplier<Block> RICE_CROP = register("rice",
 			() -> new RiceBlock(propertiesOfFullCopy(Blocks.WHEAT).mapColor(MapColor.PLANT).strength(0.2F)));
 	public static final Supplier<Block> RICE_CROP_PANICLES = register("rice_panicles",

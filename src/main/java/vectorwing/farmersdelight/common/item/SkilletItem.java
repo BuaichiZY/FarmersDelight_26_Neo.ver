@@ -9,6 +9,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -222,7 +223,7 @@ public class SkilletItem extends BlockItem
 			ItemStackWrapper storedStack = stack.getOrDefault(ModDataComponents.SKILLET_INGREDIENT, ItemStackWrapper.EMPTY);
 			if (!storedStack.getStack().isEmpty()) {
 				ItemStack cookingStack = storedStack.getStack();
-				player.getInventory().placeItemBackInInventory(cookingStack);
+				player.getInventory().placeItemBackInInventory(cookingStack, Prediction.SERVER_ONLY);
 				stack.remove(ModDataComponents.SKILLET_INGREDIENT);
 				stack.remove(ModDataComponents.COOKING_TIME_LENGTH);
 				stack.remove(ModDataComponents.SKILLET_FLIP_TIMESTAMP.get());
@@ -243,7 +244,7 @@ public class SkilletItem extends BlockItem
 				cookingRecipe.ifPresent((recipe) -> {
 					ItemStack resultStack = recipe.value().assemble(new SingleRecipeInput(cookingStack));
 					if (!player.getInventory().add(resultStack)) {
-						player.drop(resultStack, false);
+						player.drop(resultStack, false, Prediction.SERVER_ONLY);
 					}
 					if (player instanceof ServerPlayer) {
 						CriteriaTriggers.CONSUME_ITEM.trigger((ServerPlayer) player, stack);
@@ -286,16 +287,6 @@ public class SkilletItem extends BlockItem
 		}
 		if (!(level instanceof ServerLevel serverLevel)) return Optional.empty();
 		return serverLevel.recipeAccess().getRecipeFor(RecipeType.CAMPFIRE_COOKING, new SingleRecipeInput(stack), serverLevel);
-	}
-
-	@Override
-	protected boolean updateCustomBlockEntityTag(BlockPos pos, Level level, @Nullable Player player, ItemStack stack, BlockState state) {
-		super.updateCustomBlockEntityTag(pos, level, player, stack, state);
-		if (level.getBlockEntity(pos) instanceof SkilletBlockEntity skillet) {
-			skillet.setSkilletItem(stack);
-			return true;
-		}
-		return false;
 	}
 
 	public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity entity) {

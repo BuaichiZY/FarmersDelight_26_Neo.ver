@@ -6,6 +6,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Holder;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -14,6 +15,7 @@ import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
 import net.neoforged.neoforge.common.loot.LootModifier;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class AddItemModifier extends LootModifier
@@ -34,11 +36,11 @@ public class AddItemModifier extends LootModifier
 	 * This loot modifier adds an item to the loot table, given the conditions specified.
 	 */
 	public AddItemModifier(LootItemCondition[] conditions, Item addedItem, int count) {
-		this(conditions, IGlobalLootModifier.DEFAULT_PRIORITY, addedItem, count);
+		this(LootModifierConditions.combine(conditions), IGlobalLootModifier.DEFAULT_PRIORITY, addedItem, count);
 	}
 
-	public AddItemModifier(LootItemCondition[] conditions, int priority, Item addedItem, int count) {
-		super(conditions, priority);
+	public AddItemModifier(Optional<Holder<LootItemCondition>> condition, int priority, Item addedItem, int count) {
+		super(condition, priority);
 		this.addedItem = addedItem;
 		this.count = count;
 	}

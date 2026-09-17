@@ -1,10 +1,7 @@
 package vectorwing.farmersdelight.common.block;
 
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -26,6 +23,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BonemealableBlock;
+import net.minecraft.world.level.block.BonemealSource;
 import net.minecraft.world.level.block.VegetationBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -43,11 +41,6 @@ import vectorwing.farmersdelight.common.utility.ItemUtils;
 @SuppressWarnings("deprecation")
 public class MushroomColonyBlock extends VegetationBlock implements BonemealableBlock
 {
-	public static final MapCodec<MushroomColonyBlock> CODEC = RecordCodecBuilder.mapCodec(
-			builder -> builder.group(BuiltInRegistries.ITEM.holderByNameCodec().fieldOf("mushroom").forGetter(block -> block.mushroomType), propertiesCodec())
-					.apply(builder, MushroomColonyBlock::new)
-	);
-
 	public static final int PLACING_LIGHT_LEVEL = 13;
 	public final Holder<Item> mushroomType;
 
@@ -110,11 +103,6 @@ public class MushroomColonyBlock extends VegetationBlock implements Bonemealable
 	}
 
 	@Override
-	public MapCodec<MushroomColonyBlock> codec() {
-		return CODEC;
-	}
-
-	@Override
 	protected boolean mayPlaceOn(BlockState state, BlockGetter level, BlockPos pos) {
 		return state.isSolidRender();
 	}
@@ -152,12 +140,12 @@ public class MushroomColonyBlock extends VegetationBlock implements Bonemealable
 	}
 
 	@Override
-	public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
+	public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state, BonemealSource source) {
 		return state.getValue(getAgeProperty()) < getMaxAge();
 	}
 
 	@Override
-	public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state) {
+	public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
 		return true;
 	}
 
@@ -166,7 +154,7 @@ public class MushroomColonyBlock extends VegetationBlock implements Bonemealable
 	}
 
 	@Override
-	public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
+	public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
 		int age = Math.min(getMaxAge(), state.getValue(COLONY_AGE) + getBonemealAgeIncrease(level));
 		level.setBlock(pos, state.setValue(COLONY_AGE, age), 2);
 	}

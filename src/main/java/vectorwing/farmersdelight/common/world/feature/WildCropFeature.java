@@ -1,60 +1,81 @@
 package vectorwing.farmersdelight.common.world.feature;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
-import vectorwing.farmersdelight.common.world.configuration.WildCropConfiguration;
+import org.jspecify.annotations.Nullable;
 
-public class WildCropFeature extends Feature<WildCropConfiguration>
+import java.util.Optional;
+import java.util.stream.Stream;
+
+public record WildCropFeature(int tries, int xzSpread, int ySpread, Holder<PlacedFeature> primaryFeature,
+		Holder<PlacedFeature> secondaryFeature, @Nullable Holder<PlacedFeature> floorFeature) implements Feature
 {
-	public WildCropFeature(Codec<WildCropConfiguration> codec) {
-		super(codec);
+	public static final MapCodec<WildCropFeature> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+			ExtraCodecs.POSITIVE_INT.fieldOf("tries").orElse(64).forGetter(WildCropFeature::tries),
+			ExtraCodecs.NON_NEGATIVE_INT.fieldOf("xz_spread").orElse(4).forGetter(WildCropFeature::xzSpread),
+			ExtraCodecs.NON_NEGATIVE_INT.fieldOf("y_spread").orElse(3).forGetter(WildCropFeature::ySpread),
+			PlacedFeature.CODEC.fieldOf("primary_feature").forGetter(WildCropFeature::primaryFeature),
+			PlacedFeature.CODEC.fieldOf("secondary_feature").forGetter(WildCropFeature::secondaryFeature),
+			PlacedFeature.CODEC.optionalFieldOf("floor_feature").forGetter(feature -> Optional.ofNullable(feature.floorFeature))
+	).apply(instance, (tries, xzSpread, ySpread, primary, secondary, floor) ->
+			new WildCropFeature(tries, xzSpread, ySpread, primary, secondary, floor.orElse(null))));
+
+	@Override
+	public MapCodec<WildCropFeature> codec() {
+		return CODEC;
 	}
 
 	@Override
-	public boolean place(FeaturePlaceContext<WildCropConfiguration> context) {
-		WildCropConfiguration config = context.config();
-		BlockPos origin = context.origin();
-		WorldGenLevel level = context.level();
-		RandomSource random = context.random();
+	public Stream<Holder<Feature>> getSubFeatures() {
+		Stream<Holder<Feature>> features = Stream.concat(primaryFeature.value().getFeatures(), secondaryFeature.value().getFeatures());
+		return floorFeature == null ? features : Stream.concat(features, floorFeature.value().getFeatures());
+	}
 
-		int i = 0;
-		int tries = config.tries();
-		int xzSpread = config.xzSpread() + 1;
-		int ySpread = config.ySpread() + 1;
+	@Override
+	public boolean place(WorldGenLevel level, ChunkGenerator generator, RandomSource random, BlockPos origin) {
+		int placed = 0;
+		int horizontalSpread = xzSpread + 1;
+		int verticalSpread = ySpread + 1;
+		BlockPos.MutableBlockPos target = new BlockPos.MutableBlockPos();
 
-		BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
-
-		Holder<PlacedFeature> floorFeature = config.floorFeature();
 		if (floorFeature != null) {
-			for (int j = 0; j < tries; ++j) {
-				mutablePos.setWithOffset(origin, random.nextInt(xzSpread) - random.nextInt(xzSpread), random.nextInt(ySpread) - random.nextInt(ySpread), random.nextInt(xzSpread) - random.nextInt(xzSpread));
-				if (config.floorFeature().value().place(level, context.chunkGenerator(), random, mutablePos)) {
-					++i;
+			for (int attempt = 0; attempt < tries; ++attempt) {
+				target.setWithOffset(origin, random.nextInt(horizontalSpread) - random.nextInt(horizontalSpread),
+						random.nextInt(verticalSpread) - random.nextInt(verticalSpread),
+						random.nextInt(horizontalSpread) - random.nextInt(horizontalSpread));
+				if (floorFeature.value().place(level, generator, random, target)) {
+					placed++;
 				}
 			}
 		}
 
-		for (int k = 0; k < tries; ++k) {
-			int shorterXZ = xzSpread - 2;
-			mutablePos.setWithOffset(origin, random.nextInt(shorterXZ) - random.nextInt(shorterXZ), random.nextInt(ySpread) - random.nextInt(ySpread), random.nextInt(shorterXZ) - random.nextInt(shorterXZ));
-			if (config.primaryFeature().value().place(level, context.chunkGenerator(), random, mutablePos)) {
-				++i;
+		int primarySpread = Math.max(1, horizontalSpread - 2);
+		for (int attempt = 0; attempt < tries; ++attempt) {
+			target.setWithOffset(origin, random.nextInt(primarySpread) - random.nextInt(primarySpread),
+					random.nextInt(verticalSpread) - random.nextInt(verticalSpread),
+					random.nextInt(primarySpread) - random.nextInt(primarySpread));
+			if (primaryFeature.value().place(level, generator, random, target)) {
+				placed++;
 			}
 		}
 
-		for (int l = 0; l < tries; ++l) {
-			mutablePos.setWithOffset(origin, random.nextInt(xzSpread) - random.nextInt(xzSpread), random.nextInt(ySpread) - random.nextInt(ySpread), random.nextInt(xzSpread) - random.nextInt(xzSpread));
-			if (config.secondaryFeature().value().place(level, context.chunkGenerator(), random, mutablePos)) {
-				++i;
+		for (int attempt = 0; attempt < tries; ++attempt) {
+			target.setWithOffset(origin, random.nextInt(horizontalSpread) - random.nextInt(horizontalSpread),
+					random.nextInt(verticalSpread) - random.nextInt(verticalSpread),
+					random.nextInt(horizontalSpread) - random.nextInt(horizontalSpread));
+			if (secondaryFeature.value().place(level, generator, random, target)) {
+				placed++;
 			}
 		}
 
-		return i > 0;
+		return placed > 0;
 	}
 }

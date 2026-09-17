@@ -58,7 +58,7 @@ import vectorwing.farmersdelight.common.tag.ModTags;
 import java.util.function.Consumer;
 
 /**
- * Small runtime regression suite for the 26.2 port. These tests are only registered when
+ * Small runtime regression suite for the 26.3 port. These tests are only registered when
  * NeoForge enables GameTests, so they do not add any production-world content.
  */
 @SuppressWarnings("removal")
@@ -161,11 +161,15 @@ public final class CoreGameTests
 				"Tomato is missing its food component");
 		helper.assertTrue(tomato.get(DataComponents.CONSUMABLE) != null,
 				"Tomato is missing its consumable component");
+		helper.assertTrue(new ItemStack(ModItems.STRAW_BALE.get()).get(DataComponents.COOKING_FUEL) != null,
+				"Straw bale is missing its cooking fuel component");
+		helper.assertTrue(new ItemStack(ModItems.STRAW.get()).get(DataComponents.COMPOSTABLE) != null,
+				"Straw is missing its compostable component");
 		helper.assertTrue(skillet.get(DataComponents.WEAPON) != null
 					&& skillet.get(DataComponents.WEAPON).itemDamagePerAttack() == 1,
 				"Skillet is missing its 26.2 weapon component");
-		helper.assertTrue(skillet.getSwingAnimation().type() == SwingAnimationType.WHACK
-					&& skillet.getSwingAnimation().duration() == 6,
+		helper.assertTrue(skillet.getAttackAnimation().type() == SwingAnimationType.WHACK
+					&& skillet.getAttackAnimation().duration() == 6,
 				"Skillet does not use the original six-tick whack animation");
 		double skilletAttackSpeed = skillet.getAttributeModifiers()
 				.compute(Attributes.ATTACK_SPEED, Attributes.DEFAULT_ATTACK_SPEED, EquipmentSlot.MAINHAND);
@@ -318,7 +322,7 @@ public final class CoreGameTests
 		helper.assertTrue(!farmland.isFertile(level.getBlockState(farmlandPos), level, farmlandPos),
 				"Dry rich soil farmland is incorrectly reported as fertile");
 		helper.assertBlockPresent(ModBlocks.RICH_SOIL_FARMLAND.get(), farmlandRelative);
-		FarmlandBlock.turnToDirt(null, level.getBlockState(farmlandPos), level, farmlandPos);
+		((FarmlandBlock) level.getBlockState(farmlandPos).getBlock()).turnToBaseBlock(null, level.getBlockState(farmlandPos), level, farmlandPos);
 		helper.assertBlockPresent(ModBlocks.RICH_SOIL_FARMLAND.get(), farmlandRelative);
 		helper.succeed();
 	}

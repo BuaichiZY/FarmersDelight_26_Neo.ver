@@ -1,6 +1,5 @@
 package vectorwing.farmersdelight.common.block;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -19,6 +18,7 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BonemealableBlock;
+import net.minecraft.world.level.block.BonemealSource;
 import net.minecraft.world.level.block.LiquidBlockContainer;
 import net.minecraft.world.level.block.VegetationBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -40,8 +40,6 @@ import javax.annotation.Nullable;
 @SuppressWarnings("deprecation")
 public class RiceBlock extends VegetationBlock implements BonemealableBlock, LiquidBlockContainer
 {
-	public static final MapCodec<RiceBlock> CODEC = simpleCodec(RiceBlock::new);
-
 	public static final IntegerProperty AGE = BlockStateProperties.AGE_3;
 	public static final BooleanProperty SUPPORTING = BooleanProperty.create("supporting");
 	private static final VoxelShape[] SHAPE_BY_AGE = new VoxelShape[]{
@@ -53,11 +51,6 @@ public class RiceBlock extends VegetationBlock implements BonemealableBlock, Liq
 	public RiceBlock(Properties properties) {
 		super(properties);
 		this.registerDefaultState(this.defaultBlockState().setValue(AGE, 0).setValue(SUPPORTING, false));
-	}
-
-	@Override
-	public MapCodec<RiceBlock> codec() {
-		return CODEC;
 	}
 
 	@Override
@@ -155,7 +148,7 @@ public class RiceBlock extends VegetationBlock implements BonemealableBlock, Liq
 	}
 
 	@Override
-	public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
+	public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state, BonemealSource source) {
 		BlockState upperState = level.getBlockState(pos.above());
 		if (upperState.getBlock() instanceof RicePaniclesBlock) {
 			return !((RicePaniclesBlock) upperState.getBlock()).isMaxAge(upperState);
@@ -164,7 +157,7 @@ public class RiceBlock extends VegetationBlock implements BonemealableBlock, Liq
 	}
 
 	@Override
-	public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state) {
+	public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
 		return true;
 	}
 
@@ -173,7 +166,7 @@ public class RiceBlock extends VegetationBlock implements BonemealableBlock, Liq
 	}
 
 	@Override
-	public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
+	public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
 		int ageGrowth = Math.min(this.getAge(state) + this.getBonemealAgeIncrease(level), 7);
 		if (ageGrowth <= this.getMaxAge()) {
 			level.setBlockAndUpdate(pos, state.setValue(AGE, ageGrowth));
@@ -181,8 +174,8 @@ public class RiceBlock extends VegetationBlock implements BonemealableBlock, Liq
 			BlockState top = level.getBlockState(pos.above());
 			if (top.getBlock() == ModBlocks.RICE_CROP_PANICLES.get()) {
 				BonemealableBlock growable = (BonemealableBlock) level.getBlockState(pos.above()).getBlock();
-				if (growable.isValidBonemealTarget(level, pos.above(), top)) {
-					growable.performBonemeal(level, level.getRandom(), pos.above(), top);
+				if (growable.isValidBonemealTarget(level, pos.above(), top, source)) {
+					growable.performBonemeal(level, level.getRandom(), pos.above(), top, source);
 				}
 			} else {
 				RicePaniclesBlock riceUpper = (RicePaniclesBlock) ModBlocks.RICE_CROP_PANICLES.get();

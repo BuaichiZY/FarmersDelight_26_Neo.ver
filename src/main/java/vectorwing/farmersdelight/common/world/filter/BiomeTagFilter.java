@@ -10,10 +10,8 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.placement.PlacementContext;
 import net.minecraft.world.level.levelgen.placement.PlacementFilter;
-import net.minecraft.world.level.levelgen.placement.PlacementModifierType;
-import vectorwing.farmersdelight.common.registry.ModPlacementModifiers;
 
-public class BiomeTagFilter extends PlacementFilter
+public class BiomeTagFilter implements PlacementFilter
 {
 	public static final MapCodec<BiomeTagFilter> CODEC = RecordCodecBuilder.mapCodec((builder) ->
 			builder.group(
@@ -30,13 +28,13 @@ public class BiomeTagFilter extends PlacementFilter
 	}
 
 	@Override
-	protected boolean shouldPlace(PlacementContext context, RandomSource random, BlockPos pos) {
+	public boolean shouldPlace(PlacementContext context, RandomSource random, BlockPos pos) {
 		Holder<Biome> biome = context.getLevel().getBiome(pos);
 		return biome.is(biomeTag);
 	}
 
 	@Override
-	public PlacementModifierType<?> type() {
-		return ModPlacementModifiers.BIOME_TAG.get();
+	public MapCodec<? extends PlacementFilter> codec() {
+		return CODEC;
 	}
 }

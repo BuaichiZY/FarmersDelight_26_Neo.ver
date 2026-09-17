@@ -6,6 +6,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Holder;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -19,6 +20,7 @@ import net.neoforged.neoforge.common.loot.LootModifier;
 import vectorwing.farmersdelight.common.block.PieBlock;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class PastrySlicingModifier extends LootModifier
@@ -39,18 +41,18 @@ public class PastrySlicingModifier extends LootModifier
 	 * Otherwise, this does nothing.
 	 */
 	public PastrySlicingModifier(LootItemCondition[] conditions, Item pastrySlice) {
-		this(conditions, IGlobalLootModifier.DEFAULT_PRIORITY, pastrySlice);
+		this(LootModifierConditions.combine(conditions), IGlobalLootModifier.DEFAULT_PRIORITY, pastrySlice);
 	}
 
-	public PastrySlicingModifier(LootItemCondition[] conditions, int priority, Item pastrySlice) {
-		super(conditions, priority);
+	public PastrySlicingModifier(Optional<Holder<LootItemCondition>> condition, int priority, Item pastrySlice) {
+		super(condition, priority);
 		this.pastrySlice = pastrySlice;
 	}
 
 	@Nonnull
 	@Override
 	protected ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
-		BlockState state = context.getOptionalParameter(LootContextParams.BLOCK_STATE);
+		BlockState state = context.getOptional(LootContextParams.BLOCK_STATE);
 		if (state != null) {
 			Block targetBlock = state.getBlock();
 			if (targetBlock instanceof CakeBlock) {

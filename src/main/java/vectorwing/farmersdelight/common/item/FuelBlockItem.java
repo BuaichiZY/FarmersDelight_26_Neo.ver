@@ -1,13 +1,8 @@
 package vectorwing.farmersdelight.common.item;
 
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.FuelValues;
 import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
-
-import javax.annotation.Nullable;
 
 /**
  * Deprecated - Fuel is now defined in a NeoForge datamap: {@link NeoForgeDataMaps#FURNACE_FUELS}.
@@ -27,8 +22,4 @@ public class FuelBlockItem extends BlockItem
 		this.burnTime = burnTime;
 	}
 
-	@Override
-	public int getBurnTime(ItemStack stack, @Nullable RecipeType<?> recipeType, FuelValues fuelValues) {
-		return this.burnTime;
-	}
 }

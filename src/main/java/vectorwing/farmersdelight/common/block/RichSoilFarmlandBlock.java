@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 public class RichSoilFarmlandBlock extends FarmlandBlock
 {
 	public RichSoilFarmlandBlock(Properties properties) {
-		super(properties);
+		super(ModBlocks.RICH_SOIL.get(), properties);
 	}
 
 	@Override
@@ -43,7 +43,7 @@ public class RichSoilFarmlandBlock extends FarmlandBlock
 	private static boolean isNearWater(LevelReader level, BlockPos pos) {
 		BlockState state = level.getBlockState(pos);
 		for (BlockPos nearbyPos : BlockPos.betweenClosed(pos.offset(-4, 0, -4), pos.offset(4, 1, 4))) {
-			if (state.canBeHydrated(level, pos, level.getFluidState(nearbyPos), nearbyPos)) {
+			if (state.canBeHydrated(level, pos, level.getFluidState(nearbyPos))) {
 				return true;
 			}
 		}
@@ -96,5 +96,14 @@ public class RichSoilFarmlandBlock extends FarmlandBlock
 	@Override
 	public void fallOn(Level level, BlockState state, BlockPos pos, Entity entity, double fallDistance) {
 		entity.causeFallDamage(fallDistance, 1.0F, entity.damageSources().fall());
+	}
+
+	/**
+	 * Rich soil farmland is permanent and must not be reverted by vanilla farmland
+	 * conversion hooks. Its own scheduled tick still converts it to rich soil when
+	 * a solid block is placed above it.
+	 */
+	@Override
+	public void turnToBaseBlock(@Nullable Entity sourceEntity, BlockState state, Level level, BlockPos pos) {
 	}
 }

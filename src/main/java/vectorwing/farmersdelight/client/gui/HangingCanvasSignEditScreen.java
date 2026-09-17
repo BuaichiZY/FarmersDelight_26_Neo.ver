@@ -7,6 +7,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.entity.SignTextSlot;
 import org.joml.Vector3f;
 import vectorwing.farmersdelight.FarmersDelight;
 import vectorwing.farmersdelight.common.block.state.CanvasSign;
@@ -16,8 +17,8 @@ public class HangingCanvasSignEditScreen extends AbstractSignEditScreen
 	private static final Vector3f TEXT_SCALE = new Vector3f(0.9F, 0.9F, 0.9F);
 	private final Identifier texture;
 
-	public HangingCanvasSignEditScreen(SignBlockEntity signBlockEntity, boolean isFrontText, boolean isTextFilteringEnabled) {
-		super(signBlockEntity, isFrontText, isTextFilteringEnabled, Component.translatable("hanging_sign.edit"));
+	public HangingCanvasSignEditScreen(SignBlockEntity signBlockEntity, SignTextSlot slot, boolean isTextFilteringEnabled) {
+		super(signBlockEntity, slot, isTextFilteringEnabled, Component.translatable("hanging_sign.edit"));
 		DyeColor dye = signBlockEntity.getBlockState().getBlock() instanceof CanvasSign canvasSign
 				? canvasSign.getBackgroundColor()
 				: null;

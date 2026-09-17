@@ -75,12 +75,12 @@ public final class SkilletItemRenderer implements SpecialModelRenderer<SkilletIt
 		if (animation > 0.0F) {
 			poseStack.translate(0.0F, 0.4F * Mth.sin(animation * Mth.PI), 0.0F);
 			float rotationAnimation = data.flipped() ? animation + 1.0F : animation;
-			poseStack.mulPose(Axis.XP.rotationDegrees(180.0F * rotationAnimation));
+			poseStack.rotateDegrees(Axis.XP, 180.0F * rotationAnimation);
 		} else if (data.flipped()) {
-			poseStack.mulPose(Axis.XP.rotationDegrees(180.0F));
+			poseStack.rotateDegrees(Axis.XP, 180.0F);
 		}
 
-		poseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
+		poseStack.rotateDegrees(Axis.XP, 90.0F);
 		poseStack.scale(0.5F, 0.5F, 0.5F);
 		data.ingredient().submit(poseStack, submitNodeCollector, lightCoords, overlayCoords, outlineColor);
 		poseStack.popPose();

@@ -3,19 +3,22 @@
   "pools": [
     {
       "bonus_rolls": 0.0,
-      "conditions": [
-        {
-          "chance": 0.2,
-          "condition": "minecraft:random_chance"
-        },
-        {
-          "condition": "minecraft:inverted",
-          "term": {
-            "ability": "shears_harvest",
-            "condition": "neoforge:can_item_perform_ability"
+      "condition": {
+        "type": "minecraft:all_of",
+        "terms": [
+          {
+            "type": "minecraft:random_chance",
+            "chance": 0.2
+          },
+          {
+            "type": "minecraft:inverted",
+            "term": {
+              "type": "neoforge:can_item_perform_ability",
+              "ability": "shears_harvest"
+            }
           }
-        }
-      ],
+        ]
+      },
       "entries": [
         {
           "type": "minecraft:item",
@@ -32,24 +35,22 @@
           "children": [
             {
               "type": "minecraft:item",
-              "conditions": [
-                {
-                  "ability": "shears_harvest",
-                  "condition": "neoforge:can_item_perform_ability"
-                }
-              ],
+              "condition": {
+                "type": "neoforge:can_item_perform_ability",
+                "ability": "shears_harvest"
+              },
               "name": "farmersdelight:wild_cabbages"
             },
             {
               "type": "minecraft:item",
-              "functions": [
+              "modifier": [
                 {
-                  "function": "minecraft:explosion_decay"
+                  "type": "minecraft:explosion_decay"
                 },
                 {
+                  "type": "minecraft:apply_bonus",
                   "enchantment": "minecraft:fortune",
                   "formula": "minecraft:uniform_bonus_count",
-                  "function": "minecraft:apply_bonus",
                   "parameters": {
                     "bonusMultiplier": 2
                   }

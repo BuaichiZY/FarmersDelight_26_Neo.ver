@@ -3,15 +3,13 @@
   "pools": [
     {
       "bonus_rolls": 0.0,
-      "conditions": [
-        {
-          "block": "farmersdelight:honey_glazed_ham_block",
-          "condition": "minecraft:block_state_property",
-          "properties": {
-            "servings": "4"
-          }
+      "condition": {
+        "type": "minecraft:match_block",
+        "blocks": "farmersdelight:honey_glazed_ham_block",
+        "state": {
+          "servings": "4"
         }
-      ],
+      },
       "entries": [
         {
           "type": "minecraft:item",
@@ -22,18 +20,16 @@
     },
     {
       "bonus_rolls": 0.0,
-      "conditions": [
-        {
-          "condition": "minecraft:inverted",
-          "term": {
-            "block": "farmersdelight:honey_glazed_ham_block",
-            "condition": "minecraft:block_state_property",
-            "properties": {
-              "servings": "4"
-            }
+      "condition": {
+        "type": "minecraft:inverted",
+        "term": {
+          "type": "minecraft:match_block",
+          "blocks": "farmersdelight:honey_glazed_ham_block",
+          "state": {
+            "servings": "4"
           }
         }
-      ],
+      },
       "entries": [
         {
           "type": "minecraft:item",
@@ -44,18 +40,16 @@
     },
     {
       "bonus_rolls": 0.0,
-      "conditions": [
-        {
-          "condition": "minecraft:inverted",
-          "term": {
-            "block": "farmersdelight:honey_glazed_ham_block",
-            "condition": "minecraft:block_state_property",
-            "properties": {
-              "servings": "4"
-            }
+      "condition": {
+        "type": "minecraft:inverted",
+        "term": {
+          "type": "minecraft:match_block",
+          "blocks": "farmersdelight:honey_glazed_ham_block",
+          "state": {
+            "servings": "4"
           }
         }
-      ],
+      },
       "entries": [
         {
           "type": "minecraft:item",

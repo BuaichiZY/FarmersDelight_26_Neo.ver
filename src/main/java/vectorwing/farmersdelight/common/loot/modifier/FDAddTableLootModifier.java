@@ -5,6 +5,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -14,6 +15,7 @@ import net.neoforged.neoforge.common.loot.AddTableLootModifier;
 import vectorwing.farmersdelight.common.Configuration;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import static net.minecraft.world.level.storage.loot.LootTable.createStackSplitter;
@@ -31,11 +33,11 @@ public class FDAddTableLootModifier extends AddTableLootModifier
 	private final ResourceKey<LootTable> lootTable;
 
 	protected FDAddTableLootModifier(LootItemCondition[] conditionsIn, ResourceKey<LootTable> lootTable) {
-		this(conditionsIn, net.neoforged.neoforge.common.loot.IGlobalLootModifier.DEFAULT_PRIORITY, lootTable);
+		this(LootModifierConditions.combine(conditionsIn), net.neoforged.neoforge.common.loot.IGlobalLootModifier.DEFAULT_PRIORITY, lootTable);
 	}
 
-	protected FDAddTableLootModifier(LootItemCondition[] conditionsIn, int priority, ResourceKey<LootTable> lootTable) {
-		super(conditionsIn, priority, lootTable);
+	protected FDAddTableLootModifier(Optional<Holder<LootItemCondition>> condition, int priority, ResourceKey<LootTable> lootTable) {
+		super(condition, priority, lootTable);
 		this.lootTable = lootTable;
 	}
 

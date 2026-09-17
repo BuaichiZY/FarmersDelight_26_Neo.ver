@@ -45,7 +45,7 @@ public class DataGenerators
 		ExistingFileHelper helper = event.getExistingFileHelper();
 
 		RegistrySetBuilder registrySetBuilder = new RegistrySetBuilder()
-				.add(Registries.CONFIGURED_FEATURE, WildCropGeneration::bootstrapConfiguredFeatures)
+				.add(Registries.FEATURE, WildCropGeneration::bootstrapFeatures)
 				.add(Registries.PLACED_FEATURE, WildCropGeneration::bootstrapPlacedFeatures)
 				.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, ModBiomeModifiers::bootstrapBiomeModifiers)
 				.add(Registries.DAMAGE_TYPE, ModDamageTypes::bootstrapDamageTypes)

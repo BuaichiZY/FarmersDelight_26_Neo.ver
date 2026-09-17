@@ -1,6 +1,5 @@
 package vectorwing.farmersdelight.common.block;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -12,6 +11,7 @@ import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -50,8 +50,6 @@ import java.util.Optional;
 @SuppressWarnings("deprecation")
 public class SkilletBlock extends BaseEntityBlock implements SimpleWaterloggedBlock
 {
-	public static final MapCodec<SkilletBlock> CODEC = simpleCodec(SkilletBlock::new);
-
 	public static final int MINIMUM_COOKING_TIME = 60;
 
 	public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -64,11 +62,6 @@ public class SkilletBlock extends BaseEntityBlock implements SimpleWaterloggedBl
 	public SkilletBlock(BlockBehaviour.Properties properties) {
 		super(properties);
 		this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(SUPPORT, false).setValue(WATERLOGGED, false));
-	}
-
-	@Override
-	protected MapCodec<? extends BaseEntityBlock> codec() {
-		return CODEC;
 	}
 
 	@Override
@@ -130,6 +123,14 @@ public class SkilletBlock extends BaseEntityBlock implements SimpleWaterloggedBl
 				.setValue(FACING, context.getHorizontalDirection())
 				.setValue(WATERLOGGED, fluid.getType() == Fluids.WATER)
 				.setValue(SUPPORT, getTrayState(context.getLevel(), context.getClickedPos()));
+	}
+
+	@Override
+	public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+		super.setPlacedBy(level, pos, state, placer, stack);
+		if (level.getBlockEntity(pos) instanceof SkilletBlockEntity skillet) {
+			skillet.setSkilletItem(stack);
+		}
 	}
 
 	@Override

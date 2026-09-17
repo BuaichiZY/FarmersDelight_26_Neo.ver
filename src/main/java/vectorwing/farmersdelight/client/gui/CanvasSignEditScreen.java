@@ -7,6 +7,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.PlainSignBlock;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.entity.SignTextSlot;
 import org.joml.Vector3f;
 import vectorwing.farmersdelight.FarmersDelight;
 import vectorwing.farmersdelight.common.block.state.CanvasSign;
@@ -18,8 +19,8 @@ public class CanvasSignEditScreen extends AbstractSignEditScreen
 	private final Identifier texture;
 	private final int displayedHeight;
 
-	public CanvasSignEditScreen(SignBlockEntity signBlockEntity, boolean isFront, boolean isTextFilteringEnabled) {
-		super(signBlockEntity, isFront, isTextFilteringEnabled);
+	public CanvasSignEditScreen(SignBlockEntity signBlockEntity, SignTextSlot slot, boolean isTextFilteringEnabled) {
+		super(signBlockEntity, slot, isTextFilteringEnabled);
 		DyeColor dye = signBlockEntity.getBlockState().getBlock() instanceof CanvasSign canvasSign
 				? canvasSign.getBackgroundColor()
 				: null;

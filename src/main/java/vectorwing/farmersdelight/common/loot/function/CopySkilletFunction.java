@@ -2,6 +2,7 @@ package vectorwing.farmersdelight.common.loot.function;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -14,7 +15,7 @@ import vectorwing.farmersdelight.common.block.entity.SkilletBlockEntity;
 import vectorwing.farmersdelight.common.registry.ModLootFunctions;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.List;
+import java.util.Optional;
 
 @ParametersAreNonnullByDefault
 public class CopySkilletFunction extends LootItemConditionalFunction
@@ -24,8 +25,8 @@ public class CopySkilletFunction extends LootItemConditionalFunction
 			p_298131_ -> commonFields(p_298131_).apply(p_298131_, CopySkilletFunction::new)
 	);
 
-	private CopySkilletFunction(List<LootItemCondition> conditions) {
-		super(conditions);
+	private CopySkilletFunction(Optional<Holder<LootItemCondition>> condition) {
+		super(condition);
 	}
 
 	public static Builder<?> builder() {
@@ -34,7 +35,7 @@ public class CopySkilletFunction extends LootItemConditionalFunction
 
 	@Override
 	protected ItemStack run(ItemStack stack, LootContext context) {
-		if (context.getOptionalParameter(LootContextParams.BLOCK_ENTITY) instanceof SkilletBlockEntity skillet) {
+		if (context.getOptional(LootContextParams.BLOCK_ENTITY) instanceof SkilletBlockEntity skillet) {
 			stack = skillet.getSkilletAsItem();
 		}
 		return stack;
