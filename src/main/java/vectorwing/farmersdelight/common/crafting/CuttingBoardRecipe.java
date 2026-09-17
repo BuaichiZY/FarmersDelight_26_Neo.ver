@@ -12,7 +12,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
+import vectorwing.farmersdelight.common.block.entity.inventory.InventoryRecipeInput;
 import vectorwing.farmersdelight.common.crafting.ingredient.ChanceResult;
 import vectorwing.farmersdelight.common.registry.ModRecipeSerializers;
 import vectorwing.farmersdelight.common.registry.ModRecipeTypes;
@@ -94,7 +94,7 @@ public class CuttingBoardRecipe implements Recipe<CuttingBoardRecipeInput>
 		return this.results;
 	}
 
-	public List<ItemStack> rollResults(RandomSource random, int fortuneLevel, RecipeWrapper inventory) {
+	public List<ItemStack> rollResults(RandomSource random, int fortuneLevel, InventoryRecipeInput inventory) {
 		List<ItemStack> results = new ArrayList<>();
 		NonNullList<ChanceResult> rollableResults = getRollableResults();
 		for (ChanceResult output : rollableResults) {

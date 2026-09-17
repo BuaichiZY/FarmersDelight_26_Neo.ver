@@ -20,8 +20,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import vectorwing.farmersdelight.common.block.entity.inventory.ItemInventory;
+import vectorwing.farmersdelight.common.block.entity.inventory.StackInventory;
 import vectorwing.farmersdelight.common.block.SkilletBlock;
 import vectorwing.farmersdelight.common.registry.ModBlockEntityTypes;
 import vectorwing.farmersdelight.common.registry.ModItems;
@@ -34,7 +34,7 @@ import java.util.Optional;
 
 public class SkilletBlockEntity extends SyncedBlockEntity implements HeatableBlockEntity, Clearable
 {
-	private final ItemStackHandler inventory = createHandler();
+	private final StackInventory inventory = createHandler();
 	private int cookingTime;
 	private int cookingTimeTotal;
 
@@ -183,7 +183,7 @@ public class SkilletBlockEntity extends SyncedBlockEntity implements HeatableBlo
 		return inventory.extractItem(0, getStoredStack().getMaxStackSize(), false);
 	}
 
-	public IItemHandler getInventory() {
+	public ItemInventory getInventory() {
 		return inventory;
 	}
 
@@ -195,8 +195,8 @@ public class SkilletBlockEntity extends SyncedBlockEntity implements HeatableBlo
 		return !getStoredStack().isEmpty();
 	}
 
-	private ItemStackHandler createHandler() {
-		return new ItemStackHandler()
+	private StackInventory createHandler() {
+		return new StackInventory()
 		{
 			@Override
 			protected void onContentsChanged(int slot) {

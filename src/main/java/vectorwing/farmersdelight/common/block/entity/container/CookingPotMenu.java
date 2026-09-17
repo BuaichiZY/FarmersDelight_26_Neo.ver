@@ -13,9 +13,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import net.neoforged.neoforge.items.SlotItemHandler;
-import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
+import vectorwing.farmersdelight.common.block.entity.inventory.StackInventory;
+import vectorwing.farmersdelight.common.block.entity.inventory.InventorySlot;
+import vectorwing.farmersdelight.common.block.entity.inventory.InventoryRecipeInput;
 import vectorwing.farmersdelight.FarmersDelight;
 import vectorwing.farmersdelight.common.block.entity.CookingPotBlockEntity;
 import vectorwing.farmersdelight.common.crafting.CookingPotRecipe;
@@ -35,7 +35,7 @@ public class CookingPotMenu extends RecipeBookMenu
 	public static final int INDEX_OUTPUT = 8;
 
 	public final CookingPotBlockEntity blockEntity;
-	public final ItemStackHandler inventory;
+	public final StackInventory inventory;
 	private final ContainerData cookingPotData;
 	private final ContainerLevelAccess canInteractWithCallable;
 	protected final Level level;
@@ -60,7 +60,7 @@ public class CookingPotMenu extends RecipeBookMenu
 		int borderSlotSize = 18;
 		for (int row = 0; row < 2; ++row) {
 			for (int column = 0; column < 3; ++column) {
-				this.addSlot(new SlotItemHandler(inventory, (row * 3) + column,
+				this.addSlot(new InventorySlot(inventory, (row * 3) + column,
 						inputStartX + (column * borderSlotSize),
 						inputStartY + (row * borderSlotSize)));
 			}
@@ -70,7 +70,7 @@ public class CookingPotMenu extends RecipeBookMenu
 		this.addSlot(new CookingPotMealSlot(inventory, 6, 124, 26));
 
 		// Bowl Input
-		this.addSlot(new SlotItemHandler(inventory, 7, 92, 55)
+		this.addSlot(new InventorySlot(inventory, 7, 92, 55)
 		{
 			public Identifier getNoItemIcon() {
 				return EMPTY_CONTAINER_SLOT_BOWL;
@@ -176,7 +176,7 @@ public class CookingPotMenu extends RecipeBookMenu
 	}
 
 	public boolean recipeMatches(RecipeHolder<CookingPotRecipe> recipe) {
-		return recipe.value().matches(new RecipeWrapper(inventory), level);
+		return recipe.value().matches(new InventoryRecipeInput(inventory), level);
 	}
 
 	public int getResultSlotIndex() {

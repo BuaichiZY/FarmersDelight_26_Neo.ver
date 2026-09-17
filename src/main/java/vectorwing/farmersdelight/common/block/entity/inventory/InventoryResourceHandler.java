@@ -1,7 +1,6 @@
 package vectorwing.farmersdelight.common.block.entity.inventory;
 
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.TransferPreconditions;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -13,17 +12,15 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 /**
- * Transaction-aware bridge used while Farmer's Delight's internal inventories still expose the
- * legacy item-handler API. NeoForge 26.2 exposes automation through ResourceHandler instead.
+ * Transaction-aware automation over mod-owned storage, with no dependency on removed NeoForge item handlers.
  */
-@SuppressWarnings("removal")
-public final class LegacyItemHandlerResourceHandler implements ResourceHandler<ItemResource>
+public final class InventoryResourceHandler implements ResourceHandler<ItemResource>
 {
-	private final IItemHandler handler;
+	private final ItemInventory handler;
 	private final BiConsumer<Integer, ItemStack> stackSetter;
 	private final List<SlotJournal> journals;
 
-	public LegacyItemHandlerResourceHandler(IItemHandler handler, BiConsumer<Integer, ItemStack> stackSetter) {
+	public InventoryResourceHandler(ItemInventory handler, BiConsumer<Integer, ItemStack> stackSetter) {
 		this.handler = handler;
 		this.stackSetter = stackSetter;
 		this.journals = new ArrayList<>(handler.getSlots());

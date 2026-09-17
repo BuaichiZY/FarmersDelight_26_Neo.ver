@@ -1,6 +1,10 @@
 package vectorwing.farmersdelight.gametest;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -35,8 +39,8 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
+import vectorwing.farmersdelight.common.block.entity.inventory.StackInventory;
+import vectorwing.farmersdelight.common.block.entity.inventory.InventoryRecipeInput;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
@@ -50,6 +54,10 @@ import vectorwing.farmersdelight.common.block.OrganicCompostBlock;
 import vectorwing.farmersdelight.common.block.RichSoilBlock;
 import vectorwing.farmersdelight.common.block.RichSoilFarmlandBlock;
 import vectorwing.farmersdelight.common.block.entity.CabinetBlockEntity;
+import vectorwing.farmersdelight.common.block.entity.CookingPotBlockEntity;
+import vectorwing.farmersdelight.common.block.entity.CuttingBoardBlockEntity;
+import vectorwing.farmersdelight.common.block.entity.BasketBlockEntity;
+import vectorwing.farmersdelight.common.block.entity.inventory.InventorySlot;
 import vectorwing.farmersdelight.common.registry.ModBlocks;
 import vectorwing.farmersdelight.common.registry.ModEffects;
 import vectorwing.farmersdelight.common.registry.ModItems;
@@ -70,12 +78,14 @@ public final class CoreGameTests
 	private static final ResourceKey<Consumer<GameTestHelper>> ITEM_DATA = functionKey("item_data_and_tags");
 	private static final ResourceKey<Consumer<GameTestHelper>> CABINET_TRANSFER = functionKey("cabinet_transfer_transactions");
 	private static final ResourceKey<Consumer<GameTestHelper>> SOIL_BEHAVIORS = functionKey("soil_behaviors");
+	private static final ResourceKey<Consumer<GameTestHelper>> INVENTORIES = functionKey("inventory_compatibility");
 
 	static {
 		TEST_FUNCTIONS.register("core_recipes", () -> CoreGameTests::testRecipes);
 		TEST_FUNCTIONS.register("item_data_and_tags", () -> CoreGameTests::testItemDataAndTags);
 		TEST_FUNCTIONS.register("cabinet_transfer_transactions", () -> CoreGameTests::testCabinetTransferTransactions);
 		TEST_FUNCTIONS.register("soil_behaviors", () -> CoreGameTests::testSoilBehaviors);
+		TEST_FUNCTIONS.register("inventory_compatibility", () -> CoreGameTests::testInventoryCompatibility);
 	}
 
 	private CoreGameTests() {
@@ -92,6 +102,7 @@ public final class CoreGameTests
 		registerTest(event, environment, "item_data_and_tags", ITEM_DATA);
 		registerTest(event, environment, "cabinet_transfer_transactions", CABINET_TRANSFER);
 		registerTest(event, environment, "soil_behaviors", SOIL_BEHAVIORS);
+		registerTest(event, environment, "inventory_compatibility", INVENTORIES);
 	}
 
 	private static void registerTest(RegisterGameTestsEvent event, Holder<TestEnvironmentDefinition<?>> environment,
@@ -115,10 +126,10 @@ public final class CoreGameTests
 		helper.assertTrue(tomatoSauceValue instanceof CookingPotRecipe,
 				"Tomato sauce did not load as a cooking pot recipe");
 		CookingPotRecipe tomatoSauce = (CookingPotRecipe) tomatoSauceValue;
-		ItemStackHandler cookingInventory = new ItemStackHandler(CookingPotRecipe.INPUT_SLOTS);
+		StackInventory cookingInventory = new StackInventory(CookingPotRecipe.INPUT_SLOTS);
 		cookingInventory.setStackInSlot(0, new ItemStack(ModItems.TOMATO.get()));
 		cookingInventory.setStackInSlot(1, new ItemStack(ModItems.TOMATO.get()));
-		RecipeWrapper cookingInput = new RecipeWrapper(cookingInventory);
+		InventoryRecipeInput cookingInput = new InventoryRecipeInput(cookingInventory);
 		helper.assertTrue(tomatoSauce.matches(cookingInput, helper.getLevel()),
 				"Tomato sauce recipe rejected two tomatoes");
 		ItemStack tomatoSauceResult = tomatoSauce.assemble(cookingInput);
@@ -324,6 +335,69 @@ public final class CoreGameTests
 		helper.assertBlockPresent(ModBlocks.RICH_SOIL_FARMLAND.get(), farmlandRelative);
 		((FarmlandBlock) level.getBlockState(farmlandPos).getBlock()).turnToBaseBlock(null, level.getBlockState(farmlandPos), level, farmlandPos);
 		helper.assertBlockPresent(ModBlocks.RICH_SOIL_FARMLAND.get(), farmlandRelative);
+		helper.succeed();
+	}
+
+	private static void testInventoryCompatibility(GameTestHelper helper) {
+		BlockPos potPos = BlockPos.ZERO;
+		helper.setBlock(potPos, ModBlocks.COOKING_POT.get());
+		CookingPotBlockEntity pot = helper.getBlockEntity(potPos, CookingPotBlockEntity.class);
+		ResourceHandler<ItemResource> top = helper.requireCapability(Capabilities.Item.BLOCK, potPos, Direction.UP);
+		ResourceHandler<ItemResource> bottom = helper.requireCapability(Capabilities.Item.BLOCK, potPos, Direction.DOWN);
+		ItemResource tomato = ItemResource.of(ModItems.TOMATO.get());
+		try (Transaction tx = Transaction.openRoot()) {
+			helper.assertValueEqual(top.insert(0, tomato, 4, tx), 4, "pot ingredient insertion");
+		}
+		helper.assertTrue(pot.getInventory().getStackInSlot(0).isEmpty(), "Pot rollback duplicated ingredients");
+		try (Transaction tx = Transaction.openRoot()) {
+			top.insert(0, tomato, 4, tx);
+			helper.assertValueEqual(top.insert(6, tomato, 1, tx), 0, "top cannot insert into meal display");
+			helper.assertValueEqual(bottom.insert(0, tomato, 1, tx), 0, "bottom cannot insert ingredients");
+			helper.assertValueEqual(bottom.insert(7, ItemResource.of(Items.BOWL), 2, tx), 2, "bowl input");
+			tx.commit();
+		}
+		InventorySlot menuSlot = new InventorySlot(pot.getInventory(), 0, 0, 0);
+		helper.assertValueEqual(menuSlot.remove(1).getCount(), 1, "menu removal");
+		helper.assertValueEqual(top.getAmountAsLong(0), 3L, "menu and automation share storage");
+		pot.getInventory().setStackInSlot(6, new ItemStack(ModItems.BEEF_STEW.get(), 64));
+		pot.getInventory().setStackInSlot(8, new ItemStack(ModItems.BEEF_STEW.get(), 2));
+		try (Transaction tx = Transaction.openRoot()) {
+			helper.assertValueEqual(bottom.extract(8, ItemResource.of(ModItems.BEEF_STEW.get()), 1, tx), 1, "meal extraction");
+		}
+		helper.assertValueEqual(pot.getInventory().getStackInSlot(8).getCount(), 2, "meal extraction rollback");
+
+		var saved = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, helper.getLevel().registryAccess());
+		pot.getInventory().serialize(saved);
+		StackInventory restored = new StackInventory(9);
+		restored.deserialize(TagValueInput.create(ProblemReporter.DISCARDING,
+				helper.getLevel().registryAccess(), saved.buildResult()));
+		helper.assertValueEqual(restored.getStackInSlot(0).getCount(), 3, "saved ingredients");
+		helper.assertTrue(restored.getStackInSlot(6).is(ModItems.BEEF_STEW.get()), "Saved meal changed type");
+		helper.assertValueEqual(restored.getStackInSlot(6).getCount(), 64, "saved 64-serving meal display");
+		helper.assertValueEqual(restored.getStackInSlot(7).getCount(), 2, "saved bowls");
+
+		BlockPos boardPos = new BlockPos(2, 0, 0);
+		helper.setBlock(boardPos, ModBlocks.CUTTING_BOARD.get());
+		ResourceHandler<ItemResource> board = helper.requireCapability(Capabilities.Item.BLOCK, boardPos, null);
+		try (Transaction tx = Transaction.openRoot()) {
+			board.insert(0, tomato, 1, tx);
+			tx.commit();
+		}
+		helper.assertTrue(helper.getBlockEntity(boardPos, CuttingBoardBlockEntity.class).getStoredItem().is(ModItems.TOMATO.get()),
+				"Cutting board automation did not update stored item");
+
+		BlockPos basketPos = new BlockPos(4, 0, 0);
+		helper.setBlock(basketPos, ModBlocks.WOODEN_BASKET.get());
+		ResourceHandler<ItemResource> basket = helper.requireCapability(Capabilities.Item.BLOCK, basketPos, null);
+		try (Transaction tx = Transaction.openRoot()) {
+			basket.insert(0, tomato, 3, tx);
+		}
+		helper.assertTrue(helper.getBlockEntity(basketPos, BasketBlockEntity.class).isEmpty(), "Basket insertion rollback failed");
+		try (Transaction tx = Transaction.openRoot()) {
+			basket.insert(0, tomato, 3, tx);
+			tx.commit();
+		}
+		helper.assertValueEqual(helper.getBlockEntity(basketPos, BasketBlockEntity.class).getItem(0).getCount(), 3, "basket committed items");
 		helper.succeed();
 	}
 

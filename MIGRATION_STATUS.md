@@ -30,15 +30,24 @@ absolute paths.
   `build/libs/FarmersDelight-26.3-1.3.3.jar` and
   `build/libs/FarmersDelight-26.3-1.3.3_source.jar`.
 - The distributed NeoForge dependency range is `[26.3.0.0-beta,)`.
-- The dedicated GameTest server starts on `26.3.0.0-beta`, loads 2,084
-  advancements, and passes all five required tests.
+- The dedicated GameTest server starts on both `26.3.0.0-beta` and
+  `26.3.0.3-beta`, loads 2,084 advancements, and passes all six required tests.
 - Runtime tests cover cooking and cutting recipes, food and effect components,
   item translations and knife tags, cabinet transactions, organic-compost
   conversion, mushroom planting, rich-soil colonies and sapling growth,
   hydrated rich-soil farmland growth, dry/trampled farmland preservation,
   skillet attack speed/animation/durability, and the 26.3 cooking-fuel and
   compostable components.
-- A client smoke test on NeoForge `26.3.0.1-beta` with JEI `31.0.0.5` completes
+- The September 17 startup crash on `26.3.0.3-beta` was caused by removal of
+  NeoForge's deprecated `items` package. All references to that package have
+  been replaced with mod-owned inventory storage, vanilla menu slots and
+  recipe inputs. External automation still uses transactional `ResourceHandler`.
+- Additional regression tests verify cooking-pot sided insertion/extraction,
+  rollback, menu/storage consistency, cutting-board and basket automation, and
+  persistence of ingredients, bowls and a 64-serving meal display. The existing
+  `Inventory` / `Size` / `Items` save format is preserved.
+- A client smoke test on NeoForge `26.3.0.3-beta` with JEI `31.0.0.5`, using
+  classes compiled against the `26.3.0.0-beta` lower bound, completes
   mod discovery, applies the mixins, creates the game window, and reloads the
   Farmer's Delight and JEI resources without a mod, model, or texture error.
 - JEI remains optional in the distributed JAR. Cooking-pot, cutting-board, and
@@ -70,9 +79,6 @@ absolute paths.
 - Perform a manual in-world gameplay pass for interaction-heavy paths such as
   cooking-pot automation, skillet cooking and flipping, canvas-sign editing,
   village trades, and naturally generated wild crops.
-- NeoForge's legacy item-handler compatibility surface produces removal
-  warnings. It remains functional in 26.3 but should be migrated to the
-  resource-handler API in a later maintenance release.
 - Optional EMI, AppleSkin, CraftTweaker, and legacy Java data-generator
   integrations remain disabled until 26.3-compatible dependencies and API
   migrations are available. Checked-in game data and assets are packaged and

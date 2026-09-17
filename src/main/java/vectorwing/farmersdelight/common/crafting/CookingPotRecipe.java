@@ -14,7 +14,7 @@ import net.minecraft.world.item.crafting.display.ShapelessCraftingRecipeDisplay;
 import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.util.RecipeMatcher;
-import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
+import vectorwing.farmersdelight.common.block.entity.inventory.InventoryRecipeInput;
 import vectorwing.farmersdelight.client.recipebook.CookingPotRecipeBookTab;
 import vectorwing.farmersdelight.common.registry.ModItems;
 import vectorwing.farmersdelight.common.registry.ModRecipeBookCategories;
@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 
-public class CookingPotRecipe implements Recipe<RecipeWrapper>
+public class CookingPotRecipe implements Recipe<InventoryRecipeInput>
 {
 	public static final int INPUT_SLOTS = 6;
 
@@ -95,7 +95,7 @@ public class CookingPotRecipe implements Recipe<RecipeWrapper>
 	}
 
 	@Override
-	public ItemStack assemble(RecipeWrapper inv) {
+	public ItemStack assemble(InventoryRecipeInput inv) {
 		return this.output.create();
 	}
 
@@ -108,7 +108,7 @@ public class CookingPotRecipe implements Recipe<RecipeWrapper>
 	}
 
 	@Override
-	public boolean matches(RecipeWrapper inv, Level level) {
+	public boolean matches(InventoryRecipeInput inv, Level level) {
 		java.util.List<ItemStack> inputs = new java.util.ArrayList<>();
 		int i = 0;
 

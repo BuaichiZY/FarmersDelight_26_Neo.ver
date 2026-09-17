@@ -17,7 +17,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.items.IItemHandler;
+import vectorwing.farmersdelight.common.block.entity.inventory.ItemInventory;
 import org.jspecify.annotations.Nullable;
 import vectorwing.farmersdelight.common.block.StoveBlock;
 import vectorwing.farmersdelight.common.block.entity.SkilletBlockEntity;
@@ -46,7 +46,7 @@ public class SkilletRenderer implements BlockEntityRenderer<SkilletBlockEntity, 
 		BlockEntityRenderer.super.extractRenderState(skillet, state, partialTicks, cameraPosition, breakProgress);
 		state.direction = skillet.getBlockState().getValue(StoveBlock.FACING);
 		state.items = new ArrayList<>();
-		IItemHandler inventory = skillet.getInventory();
+		ItemInventory inventory = skillet.getInventory();
 		int posLong = (int) skillet.getBlockPos().asLong();
 
 		ItemStack stack = inventory.getStackInSlot(0);

@@ -19,7 +19,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec2;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import vectorwing.farmersdelight.common.block.entity.inventory.StackInventory;
 import vectorwing.farmersdelight.common.block.AbstractStoveBlock;
 import vectorwing.farmersdelight.common.utility.ItemUtils;
 
@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 
 public abstract class AbstractStoveBlockEntity extends BlockEntity implements Clearable
 {
-	private final ItemStackHandler items;
+	private final StackInventory items;
 	private final int[] cookingProgress;
 	private final int[] cookingTime;
 	private final RecipeManager.CachedCheck<SingleRecipeInput, ? extends AbstractCookingRecipe> quickRecipeLookup;
@@ -49,7 +49,7 @@ public abstract class AbstractStoveBlockEntity extends BlockEntity implements Cl
 
 	public abstract Vec2 getStoveItemOffset(int index);
 
-	public ItemStackHandler getItems() {
+	public StackInventory getItems() {
 		return this.items;
 	}
 
@@ -209,8 +209,8 @@ public abstract class AbstractStoveBlockEntity extends BlockEntity implements Cl
 		streamItems().forEach((stack) -> stack.setCount(0));
 	}
 
-	private static ItemStackHandler createHandler(int slotCount) {
-		return new ItemStackHandler(slotCount)
+	private static StackInventory createHandler(int slotCount) {
+		return new StackInventory(slotCount)
 		{
 			@Override
 			public int getSlotLimit(int slot) {

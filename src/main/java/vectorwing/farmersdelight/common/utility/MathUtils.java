@@ -1,7 +1,7 @@
 package vectorwing.farmersdelight.common.utility;
 
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import vectorwing.farmersdelight.common.block.entity.inventory.ItemInventory;
 
 import javax.annotation.Nullable;
 import java.util.Random;
@@ -15,12 +15,12 @@ public class MathUtils
 
 	/**
 	 * Calculates a comparator signal using an ItemHandler inventory, instead of IInventory.
-	 * Employing a RecipeWrapper would have caused a divide-by-zero, hence why this method was made.
+	 * Employing a InventoryRecipeInput would have caused a divide-by-zero, hence why this method was made.
 	 *
 	 * @param handler The inventory to compare.
 	 * @return The redstone signal strength.
 	 */
-	public static int calcRedstoneFromItemHandler(@Nullable IItemHandlerModifiable handler) {
+	public static int calcRedstoneFromItemHandler(@Nullable ItemInventory handler) {
 		if (handler == null) {
 			return 0;
 		} else {

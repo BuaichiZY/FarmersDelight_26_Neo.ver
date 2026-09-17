@@ -23,7 +23,7 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import vectorwing.farmersdelight.FarmersDelight;
 import vectorwing.farmersdelight.common.block.BasketBlock;
 import vectorwing.farmersdelight.common.block.entity.inventory.BasketInvWrapper;
-import vectorwing.farmersdelight.common.block.entity.inventory.LegacyItemHandlerResourceHandler;
+import vectorwing.farmersdelight.common.block.entity.inventory.InventoryResourceHandler;
 import vectorwing.farmersdelight.common.registry.ModBlockEntityTypes;
 import vectorwing.farmersdelight.common.utility.TextUtils;
 
@@ -38,7 +38,7 @@ public class BasketBlockEntity extends RandomizableContainerBlockEntity implemen
 
 	public BasketBlockEntity(BlockPos pos, BlockState state) {
 		super(ModBlockEntityTypes.BASKET.get(), pos, state);
-		this.automationHandler = new LegacyItemHandlerResourceHandler(new BasketInvWrapper(this), this::setItem);
+		this.automationHandler = new InventoryResourceHandler(new BasketInvWrapper(this), this::setItem);
 	}
 
 	@SubscribeEvent

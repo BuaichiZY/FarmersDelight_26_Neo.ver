@@ -33,16 +33,16 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
+import vectorwing.farmersdelight.common.block.entity.inventory.ItemInventory;
+import vectorwing.farmersdelight.common.block.entity.inventory.StackInventory;
+import vectorwing.farmersdelight.common.block.entity.inventory.InventoryRecipeInput;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import vectorwing.farmersdelight.FarmersDelight;
 import vectorwing.farmersdelight.common.block.CuttingBoardBlock;
 import vectorwing.farmersdelight.common.crafting.CuttingBoardRecipe;
 import vectorwing.farmersdelight.common.crafting.CuttingBoardRecipeInput;
-import vectorwing.farmersdelight.common.block.entity.inventory.LegacyItemHandlerResourceHandler;
+import vectorwing.farmersdelight.common.block.entity.inventory.InventoryResourceHandler;
 import vectorwing.farmersdelight.common.registry.ModAdvancements;
 import vectorwing.farmersdelight.common.registry.ModBlockEntityTypes;
 import vectorwing.farmersdelight.common.registry.ModRecipeTypes;
@@ -58,7 +58,7 @@ import java.util.Optional;
 @EventBusSubscriber(modid = FarmersDelight.MODID)
 public class CuttingBoardBlockEntity extends SyncedBlockEntity implements Clearable
 {
-	private final ItemStackHandler inventory;
+	private final StackInventory inventory;
 	private final ResourceHandler<ItemResource> automationHandler;
 	private final RecipeManager.CachedCheck<CuttingBoardRecipeInput, CuttingBoardRecipe> quickCheck;
 	private Identifier lastRecipeID;
@@ -67,7 +67,7 @@ public class CuttingBoardBlockEntity extends SyncedBlockEntity implements Cleara
 	public CuttingBoardBlockEntity(BlockPos pos, BlockState state) {
 		super(ModBlockEntityTypes.CUTTING_BOARD.get(), pos, state);
 		inventory = createHandler();
-		automationHandler = new LegacyItemHandlerResourceHandler(inventory, inventory::setStackInSlot);
+		automationHandler = new InventoryResourceHandler(inventory, inventory::setStackInSlot);
 		isItemCarvingBoard = false;
 		quickCheck = RecipeManager.createCheck(ModRecipeTypes.CUTTING.get());
 	}
@@ -103,7 +103,7 @@ public class CuttingBoardBlockEntity extends SyncedBlockEntity implements Cleara
 		Optional<RecipeHolder<CuttingBoardRecipe>> matchingRecipe = getMatchingRecipe(toolStack, player);
 
 		matchingRecipe.ifPresent(recipe -> {
-			List<ItemStack> results = recipe.value().rollResults(level.getRandom(), ItemUtils.getValidatedEnchantmentLevel(Enchantments.FORTUNE, level.registryAccess(), toolStack), new RecipeWrapper(inventory));
+			List<ItemStack> results = recipe.value().rollResults(level.getRandom(), ItemUtils.getValidatedEnchantmentLevel(Enchantments.FORTUNE, level.registryAccess(), toolStack), new InventoryRecipeInput(inventory));
 			for (ItemStack resultStack : results) {
 				Direction direction = getBlockState().getValue(CuttingBoardBlock.FACING).getCounterClockWise();
 				ItemUtils.spawnItemEntity(level, resultStack.copy(),
@@ -206,7 +206,7 @@ public class CuttingBoardBlockEntity extends SyncedBlockEntity implements Cleara
 		return false;
 	}
 
-	public IItemHandler getInventory() {
+	public ItemInventory getInventory() {
 		return inventory;
 	}
 
@@ -231,8 +231,8 @@ public class CuttingBoardBlockEntity extends SyncedBlockEntity implements Cleara
 		super.setRemoved();
 	}
 
-	private ItemStackHandler createHandler() {
-		return new ItemStackHandler()
+	private StackInventory createHandler() {
+		return new StackInventory()
 		{
 			@Override
 			protected void onContentsChanged(int slot) {

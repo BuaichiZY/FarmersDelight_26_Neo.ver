@@ -13,10 +13,10 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.ItemAbility;
-import net.neoforged.neoforge.items.IItemHandler;
+import vectorwing.farmersdelight.common.block.entity.inventory.ItemInventory;
 import vectorwing.farmersdelight.common.item.KnifeItem;
 import vectorwing.farmersdelight.common.tag.ModTags;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import vectorwing.farmersdelight.common.block.entity.inventory.StackInventory;
 
 import java.util.Optional;
 
@@ -39,18 +39,18 @@ public class ItemUtils
 		return isValidTool(stack, KnifeItem.KNIFE_HARVEST, ModTags.Items.KNIVES);
 	}
 
-	public static void dropItems(Level level, BlockPos pos, IItemHandler inventory) {
+	public static void dropItems(Level level, BlockPos pos, ItemInventory inventory) {
 		for (int slot = 0; slot < inventory.getSlots(); slot++)
 			Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), inventory.getStackInSlot(slot));
 	}
 
-	public static void clearItems(ItemStackHandler inventory) {
+	public static void clearItems(StackInventory inventory) {
 		for (int i = 0; i < inventory.getSlots(); i++) {
 			inventory.setStackInSlot(i, ItemStack.EMPTY);
 		}
 	}
 
-	public static boolean doesInventoryHaveItems(IItemHandler inventory) {
+	public static boolean doesInventoryHaveItems(ItemInventory inventory) {
 		for (int i = 0; i < inventory.getSlots(); i++) {
 			if (!inventory.getStackInSlot(i).isEmpty()) {
 				return true;

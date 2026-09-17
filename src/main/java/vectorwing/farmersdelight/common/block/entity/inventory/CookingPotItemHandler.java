@@ -2,20 +2,19 @@ package vectorwing.farmersdelight.common.block.entity.inventory;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class CookingPotItemHandler implements IItemHandler
+public class CookingPotItemHandler implements ItemInventory
 {
 	private static final int SLOTS_INPUT = 6;
 	private static final int SLOT_CONTAINER_INPUT = 7;
 	private static final int SLOT_MEAL_OUTPUT = 8;
-	private final IItemHandler itemHandler;
+	private final ItemInventory itemHandler;
 	private final Direction side;
 
-	public CookingPotItemHandler(IItemHandler itemHandler, @Nullable Direction side) {
+	public CookingPotItemHandler(ItemInventory itemHandler, @Nullable Direction side) {
 		this.itemHandler = itemHandler;
 		this.side = side;
 	}
@@ -28,6 +27,11 @@ public class CookingPotItemHandler implements IItemHandler
 	@Override
 	public int getSlots() {
 		return itemHandler.getSlots();
+	}
+
+	@Override
+	public void setStackInSlot(int slot, ItemStack stack) {
+		itemHandler.setStackInSlot(slot, stack);
 	}
 
 	@Override

@@ -2,21 +2,21 @@ package vectorwing.farmersdelight.common.block.entity.container;
 
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import vectorwing.farmersdelight.common.block.entity.inventory.ItemInventory;
+import vectorwing.farmersdelight.common.block.entity.inventory.InventorySlot;
 import vectorwing.farmersdelight.common.block.entity.CookingPotBlockEntity;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
-public class CookingPotResultSlot extends SlotItemHandler
+public class CookingPotResultSlot extends InventorySlot
 {
 	public final CookingPotBlockEntity cookingPot;
 	private final Player player;
 	private int removeCount;
 
-	public CookingPotResultSlot(Player player, CookingPotBlockEntity blockEntity, IItemHandler inventory, int index, int xPosition, int yPosition) {
+	public CookingPotResultSlot(Player player, CookingPotBlockEntity blockEntity, ItemInventory inventory, int index, int xPosition, int yPosition) {
 		super(inventory, index, xPosition, yPosition);
 		this.cookingPot = blockEntity;
 		this.player = player;
