@@ -65,12 +65,14 @@ public final class CoreGameTests
 	private static final ResourceKey<Consumer<GameTestHelper>> ITEM_DATA = functionKey("item_data_and_tags");
 	private static final ResourceKey<Consumer<GameTestHelper>> CABINET_TRANSFER = functionKey("cabinet_transfer_transactions");
 	private static final ResourceKey<Consumer<GameTestHelper>> SOIL_BEHAVIORS = functionKey("soil_behaviors");
+	private static final ResourceKey<Consumer<GameTestHelper>> WILD_WORLDGEN = functionKey("wild_crop_worldgen");
 
 	static {
 		TEST_FUNCTIONS.register("core_recipes", () -> CoreGameTests::testRecipes);
 		TEST_FUNCTIONS.register("item_data_and_tags", () -> CoreGameTests::testItemDataAndTags);
 		TEST_FUNCTIONS.register("cabinet_transfer_transactions", () -> CoreGameTests::testCabinetTransferTransactions);
 		TEST_FUNCTIONS.register("soil_behaviors", () -> CoreGameTests::testSoilBehaviors);
+		TEST_FUNCTIONS.register("wild_crop_worldgen", () -> WorldgenGameTests::testWildCropWorldgen);
 	}
 
 	private CoreGameTests() {
@@ -87,6 +89,7 @@ public final class CoreGameTests
 		registerTest(event, environment, "item_data_and_tags", ITEM_DATA);
 		registerTest(event, environment, "cabinet_transfer_transactions", CABINET_TRANSFER);
 		registerTest(event, environment, "soil_behaviors", SOIL_BEHAVIORS);
+		registerTest(event, environment, "wild_crop_worldgen", WILD_WORLDGEN);
 	}
 
 	private static void registerTest(RegisterGameTestsEvent event, Holder<TestEnvironmentDefinition<?>> environment,

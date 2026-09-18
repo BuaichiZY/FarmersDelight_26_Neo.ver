@@ -86,17 +86,17 @@ public class WildCropGeneration
 				ModBlocks.WILD_CARROTS.get(),
 				Blocks.SHORT_GRASS,
 				Blocks.COARSE_DIRT,
-				BlockTags.DIRT
+				BlockTags.SUBSTRATE_OVERWORLD
 		));
 		context.register(FEATURE_PATCH_WILD_ONIONS, wildCropConfiguredFeature(
 				ModBlocks.WILD_ONIONS.get(),
 				Blocks.ALLIUM,
-				BlockTags.DIRT
+				BlockTags.SUBSTRATE_OVERWORLD
 		));
 		context.register(FEATURE_PATCH_WILD_POTATOES, wildCropConfiguredFeature(
 				ModBlocks.WILD_POTATOES.get(),
 				Blocks.FERN,
-				BlockTags.DIRT
+				BlockTags.SUBSTRATE_OVERWORLD
 		));
 		context.register(FEATURE_PATCH_WILD_TOMATOES, wildCropConfiguredFeature(
 				ModBlocks.WILD_TOMATOES.get(), Blocks.DEAD_BUSH, ModTags.Blocks.TERRAIN
@@ -104,7 +104,7 @@ public class WildCropGeneration
 		context.register(FEATURE_PATCH_WILD_RICE, new ConfiguredFeature<>(
 				ModBiomeFeatures.WILD_RICE.get(),
 				new PatchConfiguration(96, 7, 3,
-						plantPlacedFeature(ModBlocks.WILD_RICE.get(), BlockTags.DIRT)
+						plantPlacedFeature(ModBlocks.WILD_RICE.get(), BlockTags.SUBSTRATE_OVERWORLD)
 				)
 		));
 		context.register(FEATURE_PATCH_BROWN_MUSHROOM_COLONIES, mushroomColonyConfiguredFeature(
