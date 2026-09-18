@@ -1,24 +1,27 @@
 {
   "type": "farmersdelight:add_item",
-  "conditions": [
-    {
-      "condition": "minecraft:entity_properties",
-      "entity": "attacker",
-      "predicate": {
-        "equipment": {
-          "mainhand": {
-            "items": "#farmersdelight:tools/knives"
+  "item": "minecraft:rabbit_hide",
+  "condition": {
+    "type": "minecraft:all_of",
+    "terms": [
+      {
+        "type": "minecraft:entity_properties",
+        "entity": "attacker",
+        "predicate": {
+          "minecraft:equipment": {
+            "mainhand": {
+              "items": "#farmersdelight:tools/knives"
+            }
           }
         }
+      },
+      {
+        "type": "minecraft:entity_properties",
+        "entity": "this",
+        "predicate": {
+          "minecraft:entity_type": "minecraft:rabbit"
+        }
       }
-    },
-    {
-      "condition": "minecraft:entity_properties",
-      "entity": "this",
-      "predicate": {
-            "minecraft:entity_type": "minecraft:rabbit"
-      }
-    }
-  ],
-  "item": "minecraft:rabbit_hide"
+    ]
+  }
 }

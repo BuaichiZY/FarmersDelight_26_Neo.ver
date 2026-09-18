@@ -24,7 +24,7 @@
                 -1,
                 0
               ],
-              "tag": "minecraft:dirt"
+              "tag": "minecraft:substrate_overworld"
             }
           ]
         }
@@ -55,7 +55,7 @@
                 -1,
                 0
               ],
-              "tag": "minecraft:dirt"
+              "tag": "minecraft:substrate_overworld"
             }
           ]
         }

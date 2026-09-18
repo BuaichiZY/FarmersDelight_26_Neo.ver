@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.3.3-fix3 (Minecraft 26.3)
+
+### Fixes
+- Restored wild-crop generation and survival on grass, podzol, and other overworld substrates. Minecraft 26.3 narrowed the dirt tag; wild crops now use the substrate_overworld tag instead.
+- Updated wild rice substrate checks and tomato terrain matching, including shallow water over mud.
+- Kept the existing biome restrictions and generation rarity. Existing chunks are not retroactively populated.
+- Added runtime checks for biome injection and the complete placement pipeline of all seven wild crops and both mushroom colonies.
+
+## 1.3.3-fix2 (Minecraft 26.3)
+
+### Fixes
+- Migrated all 37 global loot modifier conditions to the 26.3 format. Entity kills and block drops no longer receive unrelated scavenging or chest loot.
+- Preserved weapon, entity, fire, crop maturity, chance, and chest-table restrictions for legitimate bonus drops.
+- Added runtime regression coverage for entity, block, and chest loot, including skillet kills of slimes.
+- Retained the fix1 inventory compatibility fix and the NeoForge 26.3.0.0-beta minimum.
+
 ## 1.3.3
 
 ### Fixes

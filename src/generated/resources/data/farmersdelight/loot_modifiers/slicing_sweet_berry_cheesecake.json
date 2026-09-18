@@ -1,16 +1,19 @@
 {
   "type": "farmersdelight:pastry_slicing",
-  "conditions": [
-    {
-      "condition": "minecraft:match_tool",
-      "predicate": {
-        "items": "#farmersdelight:tools/knives"
+  "slice": "farmersdelight:sweet_berry_cheesecake_slice",
+  "condition": {
+    "type": "minecraft:all_of",
+    "terms": [
+      {
+        "type": "minecraft:match_tool",
+        "predicate": {
+          "items": "#farmersdelight:tools/knives"
+        }
+      },
+      {
+        "type": "minecraft:match_block",
+        "blocks": "farmersdelight:sweet_berry_cheesecake"
       }
-    },
-    {
-      "block": "farmersdelight:sweet_berry_cheesecake",
-      "condition": "minecraft:block_state_property"
-    }
-  ],
-  "slice": "farmersdelight:sweet_berry_cheesecake_slice"
+    ]
+  }
 }

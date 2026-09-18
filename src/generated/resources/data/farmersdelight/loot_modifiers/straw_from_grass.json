@@ -1,20 +1,23 @@
 {
   "type": "farmersdelight:add_item",
-  "conditions": [
-    {
-      "condition": "minecraft:match_tool",
-      "predicate": {
-        "items": "#farmersdelight:straw_harvesters"
+  "item": "farmersdelight:straw",
+  "condition": {
+    "type": "minecraft:all_of",
+    "terms": [
+      {
+        "type": "minecraft:match_tool",
+        "predicate": {
+          "items": "#farmersdelight:straw_harvesters"
+        }
+      },
+      {
+        "type": "minecraft:random_chance",
+        "chance": 0.2
+      },
+      {
+        "type": "minecraft:match_block",
+        "blocks": "minecraft:short_grass"
       }
-    },
-    {
-      "chance": 0.2,
-      "condition": "minecraft:random_chance"
-    },
-    {
-      "block": "minecraft:short_grass",
-      "condition": "minecraft:block_state_property"
-    }
-  ],
-  "item": "farmersdelight:straw"
+    ]
+  }
 }

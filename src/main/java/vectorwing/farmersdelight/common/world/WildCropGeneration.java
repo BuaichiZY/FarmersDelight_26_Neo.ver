@@ -72,15 +72,15 @@ public class WildCropGeneration
 		context.register(FEATURE_PATCH_WILD_BEETROOTS, wildCropFeature(
 				ModBlocks.WILD_BEETROOTS.get(), ModBlocks.SANDY_SHRUB.get(), BlockTags.SAND));
 		context.register(FEATURE_PATCH_WILD_CARROTS, wildCropFeature(
-				ModBlocks.WILD_CARROTS.get(), Blocks.SHORT_GRASS, Blocks.COARSE_DIRT, BlockTags.DIRT));
+				ModBlocks.WILD_CARROTS.get(), Blocks.SHORT_GRASS, Blocks.COARSE_DIRT, BlockTags.SUBSTRATE_OVERWORLD));
 		context.register(FEATURE_PATCH_WILD_ONIONS, wildCropFeature(
-				ModBlocks.WILD_ONIONS.get(), Blocks.ALLIUM, BlockTags.DIRT));
+				ModBlocks.WILD_ONIONS.get(), Blocks.ALLIUM, BlockTags.SUBSTRATE_OVERWORLD));
 		context.register(FEATURE_PATCH_WILD_POTATOES, wildCropFeature(
-				ModBlocks.WILD_POTATOES.get(), Blocks.FERN, BlockTags.DIRT));
+				ModBlocks.WILD_POTATOES.get(), Blocks.FERN, BlockTags.SUBSTRATE_OVERWORLD));
 		context.register(FEATURE_PATCH_WILD_TOMATOES, wildCropFeature(
 				ModBlocks.WILD_TOMATOES.get(), Blocks.DEAD_BUSH, ModTags.Blocks.TERRAIN));
 		context.register(FEATURE_PATCH_WILD_RICE, new WildRiceFeature(
-				96, 7, 3, plantPlacedFeature(ModBlocks.WILD_RICE.get(), BlockTags.DIRT)));
+				96, 7, 3, plantPlacedFeature(ModBlocks.WILD_RICE.get(), BlockTags.SUBSTRATE_OVERWORLD)));
 		context.register(FEATURE_PATCH_BROWN_MUSHROOM_COLONIES, mushroomColonyFeature(
 				ModBlocks.BROWN_MUSHROOM_COLONY.get(), Blocks.BROWN_MUSHROOM));
 		context.register(FEATURE_PATCH_RED_MUSHROOM_COLONIES, mushroomColonyFeature(

@@ -7,6 +7,7 @@
 - Baseline commit: `71abf1c0` (`Bump version`)
 - Target Minecraft: `26.3`
 - Target/minimum NeoForge: `26.3.0.0-beta`
+- Port version: `1.3.3-fix3`
 - ModDevGradle: `2.0.147`
 - JEI development runtime: `31.0.0.5` (requires NeoForge `26.3.0.1-beta` or newer)
 - Compiler/runtime: project-local Java 25 toolchain
@@ -26,12 +27,12 @@ absolute paths.
 
 ## Working 26.3 port
 
-- `clean build` succeeds on the exact NeoForge lower bound and produces both
-  `build/libs/FarmersDelight-26.3-1.3.3.jar` and
-  `build/libs/FarmersDelight-26.3-1.3.3_source.jar`.
+- `build` succeeds on the exact NeoForge lower bound and produces both
+  `build/libs/FarmersDelight-26.3-1.3.3-fix3.jar` and
+  `build/libs/FarmersDelight-26.3-1.3.3-fix3_source.jar`.
 - The distributed NeoForge dependency range is `[26.3.0.0-beta,)`.
 - The dedicated GameTest server starts on both `26.3.0.0-beta` and
-  `26.3.0.3-beta`, loads 2,084 advancements, and passes all six required tests.
+  `26.3.0.3-beta`, loads 2,084 advancements, and passes all eight required tests.
 - Runtime tests cover cooking and cutting recipes, food and effect components,
   item translations and knife tags, cabinet transactions, organic-compost
   conversion, mushroom planting, rich-soil colonies and sapling growth,
@@ -46,6 +47,16 @@ absolute paths.
   rollback, menu/storage consistency, cutting-board and basket automation, and
   persistence of ingredients, bowls and a 64-serving meal display. The existing
   `Inventory` / `Size` / `Items` save format is preserved.
+- Fix2 migrates all 37 global loot modifiers from the ignored legacy
+  `conditions` array to the 26.3 `condition` field, using `all_of` where needed.
+  Nested condition discriminators and block predicates are migrated as well.
+  The prior resources reproduced the reported slime drop explosion in GameTest.
+- The new loot regression test validates every bundled modifier with the actual
+  runtime codec, checks slime drops with a skillet, sword, empty hand and knife
+  across 32 seeds each, and verifies shulker knife bonuses, raw/smoked hoglin ham,
+  stone drops, pumpkin/cake slicing, wheat age/tool restrictions, and dungeon
+  versus unrelated chest injections. These tests exercise the loaded global
+  modifiers rather than manually constructed modifier objects.
 - A client smoke test on NeoForge `26.3.0.3-beta` with JEI `31.0.0.5`, using
   classes compiled against the `26.3.0.0-beta` lower bound, completes
   mod discovery, applies the mixins, creates the game window, and reloads the
@@ -57,6 +68,16 @@ absolute paths.
   than NeoForge's deferred wrapper, retaining compatibility with Bukkit-based
   hybrid servers when Nourishment or Comfort is applied.
 - World generation uses 26.3 feature and placed-feature dynamic registries.
+- Fix3 replaces the narrowed `minecraft:dirt` tag with
+  `minecraft:substrate_overworld` in wild-crop placement and survival checks.
+  This restores grass/podzol substrates and shallow-water rice over mud without
+  changing vanilla tags globally, biome selection, or patch rarity.
+- Worldgen tests verify loaded biome modifiers and run all seven crop patches
+  and both mushroom colonies through the full placement pipeline (including
+  rarity, heightmap and biome filters) on controlled terrain. They assert that
+  generated plants can survive. This is not a survey of naturally explored
+  terrain. Existing chunks are not retro-generated; default superflat worlds
+  without biome decoration do not acquire wild plants from this fix.
 - Advancements and block loot tables use the 26.3 condition/modifier schemas;
   the legacy configured-feature and NeoForge fuel/compost data-map formats are
   no longer used.

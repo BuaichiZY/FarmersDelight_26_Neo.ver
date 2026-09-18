@@ -1,71 +1,74 @@
 {
   "type": "farmersdelight:add_item",
-  "conditions": [
-    {
-      "condition": "minecraft:entity_properties",
-      "entity": "attacker",
-      "predicate": {
-        "equipment": {
-          "mainhand": {
-            "items": "#farmersdelight:tools/knives"
+  "item": "minecraft:leather",
+  "condition": {
+    "type": "minecraft:all_of",
+    "terms": [
+      {
+        "type": "minecraft:entity_properties",
+        "entity": "attacker",
+        "predicate": {
+          "minecraft:equipment": {
+            "mainhand": {
+              "items": "#farmersdelight:tools/knives"
+            }
           }
         }
+      },
+      {
+        "type": "minecraft:any_of",
+        "terms": [
+          {
+            "type": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "minecraft:entity_type": "minecraft:cow"
+            }
+          },
+          {
+            "type": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "minecraft:entity_type": "minecraft:mooshroom"
+            }
+          },
+          {
+            "type": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "minecraft:entity_type": "minecraft:horse"
+            }
+          },
+          {
+            "type": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "minecraft:entity_type": "minecraft:donkey"
+            }
+          },
+          {
+            "type": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "minecraft:entity_type": "minecraft:mule"
+            }
+          },
+          {
+            "type": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "minecraft:entity_type": "minecraft:llama"
+            }
+          },
+          {
+            "type": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "minecraft:entity_type": "minecraft:trader_llama"
+            }
+          }
+        ]
       }
-    },
-    {
-      "condition": "minecraft:any_of",
-      "terms": [
-        {
-          "condition": "minecraft:entity_properties",
-          "entity": "this",
-          "predicate": {
-            "minecraft:entity_type": "minecraft:cow"
-          }
-        },
-        {
-          "condition": "minecraft:entity_properties",
-          "entity": "this",
-          "predicate": {
-            "minecraft:entity_type": "minecraft:mooshroom"
-          }
-        },
-        {
-          "condition": "minecraft:entity_properties",
-          "entity": "this",
-          "predicate": {
-            "minecraft:entity_type": "minecraft:horse"
-          }
-        },
-        {
-          "condition": "minecraft:entity_properties",
-          "entity": "this",
-          "predicate": {
-            "minecraft:entity_type": "minecraft:donkey"
-          }
-        },
-        {
-          "condition": "minecraft:entity_properties",
-          "entity": "this",
-          "predicate": {
-            "minecraft:entity_type": "minecraft:mule"
-          }
-        },
-        {
-          "condition": "minecraft:entity_properties",
-          "entity": "this",
-          "predicate": {
-            "minecraft:entity_type": "minecraft:llama"
-          }
-        },
-        {
-          "condition": "minecraft:entity_properties",
-          "entity": "this",
-          "predicate": {
-            "minecraft:entity_type": "minecraft:trader_llama"
-          }
-        }
-      ]
-    }
-  ],
-  "item": "minecraft:leather"
+    ]
+  }
 }
