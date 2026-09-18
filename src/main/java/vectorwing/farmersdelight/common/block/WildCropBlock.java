@@ -33,7 +33,7 @@ public class WildCropBlock extends FlowerBlock implements BonemealableBlock
 
 	@Override
 	protected boolean mayPlaceOn(BlockState state, BlockGetter level, BlockPos pos) {
-		return state.is(BlockTags.DIRT) || state.is(BlockTags.SAND);
+		return state.is(BlockTags.SUBSTRATE_OVERWORLD) || state.is(BlockTags.SAND);
 	}
 
 	@Override

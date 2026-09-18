@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.3-fix3 (Minecraft 26.2)
+
+### Fixes
+- Backported the wild-crop worldgen fix: use substrate_overworld rather than the narrowed dirt tag for crop placement and survival.
+- Restored grass/podzol substrates and shallow-water rice over mud, while retaining biome restrictions and generation rarity.
+- Added runtime coverage for all seven wild crops and both mushroom colonies, including biome injection, complete placement and survival checks.
+- Existing chunks are not retroactively populated. The minimum NeoForge version is unchanged.
+
 ## 1.3.3
 
 ### Fixes
