@@ -207,6 +207,12 @@ public class BlockTags extends BlockTagsProvider
 		tag(net.minecraft.tags.BlockTags.TALL_FLOWERS).add(ModBlocks.WILD_RICE.get());
 		tag(net.minecraft.tags.BlockTags.DIRT).add(
 			ModBlocks.RICH_SOIL.get());
+		tag(net.minecraft.tags.BlockTags.SUPPORTS_VEGETATION).add(ModBlocks.RICH_SOIL_FARMLAND.get());
+		tag(net.minecraft.tags.BlockTags.SUPPORTS_CROPS).add(ModBlocks.RICH_SOIL_FARMLAND.get());
+		tag(net.minecraft.tags.BlockTags.GROWS_CROPS).add(ModBlocks.RICH_SOIL_FARMLAND.get());
+		tag(net.minecraft.tags.BlockTags.SUPPORTS_BIG_DRIPLEAF).add(ModBlocks.RICH_SOIL_FARMLAND.get());
+		tag(net.minecraft.tags.BlockTags.SUPPORT_OVERRIDE_CACTUS_FLOWER).add(ModBlocks.RICH_SOIL_FARMLAND.get());
+		tag(net.minecraft.tags.BlockTags.BLOCKS_MOTION_NO_LEAVES).add(ModBlocks.RICH_SOIL_FARMLAND.get());
 		tag(net.minecraft.tags.BlockTags.MAINTAINS_FARMLAND).add(
 			ModBlocks.CABBAGE_CROP.get(),
 			ModBlocks.BUDDING_TOMATO_CROP.get(),
