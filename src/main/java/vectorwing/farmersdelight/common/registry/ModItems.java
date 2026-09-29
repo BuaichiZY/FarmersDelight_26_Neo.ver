@@ -76,7 +76,8 @@ public class ModItems
 	}
 
 	public static Item.Properties bowlFoodItem(FoodProperties food) {
-		return basicItem().useItemDescriptionPrefix().food(food, FoodValues.consumableFor(food)).usingConvertsTo(Items.BOWL).stacksTo(16);
+		return basicItem().useItemDescriptionPrefix().food(food, FoodValues.consumableFor(food))
+				.craftRemainder(Items.BOWL).usingConvertsTo(Items.BOWL).stacksTo(16);
 	}
 
 	public static Item.Properties drinkItem() {
@@ -338,7 +339,8 @@ public class ModItems
 	public static final Supplier<Item> MELON_JUICE = registerWithTab("melon_juice",
 			() -> new MelonJuiceItem(drinkItem()));
 	public static final Supplier<Item> TOMATO_SAUCE = registerWithTab("tomato_sauce",
-			() -> new ConsumableItem(foodItem(FoodValues.TOMATO_SAUCE).craftRemainder(Items.BOWL)));
+			() -> new ConsumableItem(foodItem(FoodValues.TOMATO_SAUCE)
+					.craftRemainder(Items.BOWL).usingConvertsTo(Items.BOWL)));
 	public static final Supplier<Item> WHEAT_DOUGH = registerWithTab("wheat_dough",
 			() -> new Item(foodItem(FoodValues.WHEAT_DOUGH)));
 	public static final Supplier<Item> RAW_PASTA = registerWithTab("raw_pasta",
@@ -402,7 +404,8 @@ public class ModItems
 	public static final Supplier<Item> MELON_POPSICLE = registerWithTab("melon_popsicle",
 			() -> new PopsicleItem(foodItem(FoodValues.POPSICLE)));
 	public static final Supplier<Item> GLOW_BERRY_CUSTARD = registerWithTab("glow_berry_custard",
-			() -> new ConsumableItem(foodItem(FoodValues.GLOW_BERRY_CUSTARD).craftRemainder(Items.GLASS_BOTTLE).stacksTo(16)));
+			() -> new ConsumableItem(foodItem(FoodValues.GLOW_BERRY_CUSTARD)
+					.craftRemainder(Items.GLASS_BOTTLE).usingConvertsTo(Items.GLASS_BOTTLE).stacksTo(16)));
 	public static final Supplier<Item> FRUIT_SALAD = registerWithTab("fruit_salad",
 			() -> new ConsumableItem(bowlFoodItem(FoodValues.FRUIT_SALAD)));
 
