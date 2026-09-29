@@ -108,6 +108,20 @@ public final class CoreGameTests
 				.count();
 		helper.assertTrue(farmerRecipes >= 250,
 				"Expected at least 250 Farmer's Delight recipes, loaded " + farmerRecipes);
+		for (RecipeHolder<?> holder : recipes.getRecipes()) {
+			if (holder.value() instanceof CookingPotRecipe cookingPotRecipe) {
+				ItemStack result = cookingPotRecipe.getResultItem();
+				if (result.get(DataComponents.CONSUMABLE) == null) continue;
+				ItemStack servingContainer = cookingPotRecipe.getOutputContainer();
+				var useRemainder = result.get(DataComponents.USE_REMAINDER);
+				ItemStack returnedContainer = useRemainder == null
+						? ItemStack.EMPTY : useRemainder.convertInto().create();
+				boolean containersMatch = servingContainer.isEmpty() && returnedContainer.isEmpty()
+						|| ItemStack.isSameItemSameComponents(servingContainer, returnedContainer);
+				helper.assertTrue(containersMatch,
+						"Cooking pot container does not match the consumed remainder for " + result.getHoverName());
+			}
+		}
 
 		Recipe<?> tomatoSauceValue = requireRecipe(helper, recipes, "cooking/tomato_sauce").value();
 		helper.assertTrue(tomatoSauceValue instanceof CookingPotRecipe,
@@ -122,6 +136,18 @@ public final class CoreGameTests
 		ItemStack tomatoSauceResult = tomatoSauce.assemble(cookingInput);
 		helper.assertTrue(tomatoSauceResult.is(ModItems.TOMATO_SAUCE.get()) && tomatoSauceResult.getCount() == 1,
 				"Tomato sauce recipe returned an unexpected result");
+		helper.assertTrue(tomatoSauce.getOutputContainer().is(Items.BOWL),
+				"Tomato sauce can be taken from the cooking pot without a bowl");
+
+		CookingPotRecipe onionSoup = (CookingPotRecipe) requireRecipe(helper, recipes, "cooking/onion_soup").value();
+		helper.assertTrue(onionSoup.getOutputContainer().is(Items.BOWL),
+				"Onion soup can be taken from the cooking pot without a bowl");
+		CookingPotRecipe cookedRice = (CookingPotRecipe) requireRecipe(helper, recipes, "cooking/cooked_rice").value();
+		helper.assertTrue(cookedRice.getOutputContainer().is(Items.BOWL),
+				"Cooked rice can be taken from the cooking pot without a bowl");
+		CookingPotRecipe cabbageRolls = (CookingPotRecipe) requireRecipe(helper, recipes, "cooking/cabbage_rolls").value();
+		helper.assertTrue(cabbageRolls.getOutputContainer().isEmpty(),
+				"Cabbage rolls unexpectedly require a serving container");
 
 		Recipe<?> cabbageValue = requireRecipe(helper, recipes, "cutting/cabbage").value();
 		helper.assertTrue(cabbageValue instanceof CuttingBoardRecipe,
@@ -140,6 +166,29 @@ public final class CoreGameTests
 	private static void testItemDataAndTags(GameTestHelper helper) {
 		ItemStack tomato = new ItemStack(ModItems.TOMATO.get());
 		ItemStack skillet = new ItemStack(ModItems.SKILLET.get());
+		for (var itemSupplier : ModItems.CREATIVE_TAB_ITEMS) {
+			var item = itemSupplier.get();
+			ItemStack stack = new ItemStack(item);
+			var craftingRemainderTemplate = item.getCraftingRemainder(stack);
+			var useRemainder = stack.get(DataComponents.USE_REMAINDER);
+			if (craftingRemainderTemplate == null && useRemainder == null) continue;
+			ItemStack craftingRemainder = craftingRemainderTemplate == null
+					? ItemStack.EMPTY : craftingRemainderTemplate.create();
+			ItemStack consumedRemainder = useRemainder == null
+					? ItemStack.EMPTY : useRemainder.convertInto().create();
+			helper.assertTrue(ItemStack.isSameItemSameComponents(craftingRemainder, consumedRemainder),
+					"Crafting and consumed remainders differ for " + stack.getHoverName());
+		}
+		var consumingEntity = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(2, 0, 0));
+		ItemStack bowlRemainder = new ItemStack(ModItems.ONION_SOUP.get())
+				.finishUsingItem(helper.getLevel(), consumingEntity);
+		helper.assertTrue(bowlRemainder.is(Items.BOWL),
+				"A bowl-served meal did not return its bowl after consumption");
+		ItemStack looseFoodRemainder = new ItemStack(ModItems.CABBAGE_ROLLS.get())
+				.finishUsingItem(helper.getLevel(), consumingEntity);
+		helper.assertTrue(looseFoodRemainder.isEmpty(),
+				"A meal served without a bowl returned a free bowl after consumption");
+		consumingEntity.discard();
 		helper.assertTrue(tomato.get(DataComponents.FOOD) != null,
 				"Tomato is missing its food component");
 		helper.assertTrue(tomato.get(DataComponents.CONSUMABLE) != null,
@@ -224,6 +273,15 @@ public final class CoreGameTests
 	}
 
 	private static void testSoilBehaviors(GameTestHelper helper) {
+		for (var tag : java.util.List.of(
+				net.minecraft.tags.BlockTags.SUPPORTS_VEGETATION,
+				net.minecraft.tags.BlockTags.SUPPORTS_CROPS,
+				net.minecraft.tags.BlockTags.GROWS_CROPS,
+				net.minecraft.tags.BlockTags.SUPPORTS_BIG_DRIPLEAF,
+				net.minecraft.tags.BlockTags.SUPPORT_OVERRIDE_CACTUS_FLOWER)) {
+			helper.assertTrue(ModBlocks.RICH_SOIL_FARMLAND.get().defaultBlockState().is(tag),
+					"Rich soil farmland is missing vanilla farmland tag " + tag);
+		}
 		var level = helper.getLevel();
 		OrganicCompostBlock compost = (OrganicCompostBlock) ModBlocks.ORGANIC_COMPOST.get();
 		BlockPos compostRelative = new BlockPos(1, 1, 1);
