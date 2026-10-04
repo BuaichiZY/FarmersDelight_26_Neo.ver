@@ -1,6 +1,8 @@
 package vectorwing.farmersdelight.common;
 
 import com.google.common.collect.ImmutableList;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.util.List;
@@ -10,6 +12,21 @@ public class Configuration
 {
 	public static ModConfigSpec COMMON_CONFIG;
 	public static ModConfigSpec CLIENT_CONFIG;
+
+	public static void register(ModContainer modContainer) {
+		modContainer.registerConfig(commonConfigType(), COMMON_CONFIG, "farmersdelight-common.toml");
+		modContainer.registerConfig(ModConfig.Type.CLIENT, CLIENT_CONFIG);
+	}
+
+	private static ModConfig.Type commonConfigType() {
+		// FML 12.0.8 renamed COMMON to LOCAL. Resolve by name so the same jar supports both APIs.
+		for (ModConfig.Type type : ModConfig.Type.values()) {
+			if (type.name().equals("LOCAL") || type.name().equals("COMMON")) {
+				return type;
+			}
+		}
+		throw new IllegalStateException("No compatible local/common config type is available");
+	}
 
 	// COMMON
 	public static final String CATEGORY_SETTINGS = "settings";

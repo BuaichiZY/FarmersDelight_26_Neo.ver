@@ -3,7 +3,6 @@ package vectorwing.farmersdelight;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
@@ -35,8 +34,7 @@ public class FarmersDelight
 			modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
 		}
 
-		modContainer.registerConfig(ModConfig.Type.COMMON, Configuration.COMMON_CONFIG);
-		modContainer.registerConfig(ModConfig.Type.CLIENT, Configuration.CLIENT_CONFIG);
+		Configuration.register(modContainer);
 
 		ModSounds.SOUNDS.register(modEventBus);
 		ModBlocks.BLOCKS.register(modEventBus);

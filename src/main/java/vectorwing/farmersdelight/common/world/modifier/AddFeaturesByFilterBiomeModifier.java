@@ -3,6 +3,7 @@ package vectorwing.farmersdelight.common.world.modifier;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
@@ -23,7 +24,7 @@ public record AddFeaturesByFilterBiomeModifier(
 ) implements BiomeModifier
 {
 
-	@Override
+	// Keep both callback signatures for early and current NeoForge 26.3 builds.
 	public void modify(Holder<Biome> biome, Phase phase, ModifiableBiomeInfo.BiomeInfo.Builder builder) {
 		if (phase == Phase.ADD && this.allowedBiomes.contains(biome)) {
 			if (deniedBiomes.isPresent() && this.deniedBiomes.get().contains(biome)) {
@@ -38,6 +39,11 @@ public record AddFeaturesByFilterBiomeModifier(
 			BiomeGenerationSettingsBuilder generationSettings = builder.getGenerationSettings();
 			this.features.forEach(holder -> generationSettings.addFeature(this.step, holder));
 		}
+	}
+
+	public void modify(RegistryAccess registries, Holder<Biome> biome, Phase phase,
+			ModifiableBiomeInfo.BiomeInfo.Builder builder) {
+		modify(biome, phase, builder);
 	}
 
 	@Override
