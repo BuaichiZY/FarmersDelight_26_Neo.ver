@@ -94,7 +94,7 @@ public class WildCropGeneration
 		context.register(PATCH_WILD_TOMATOES, createPlacedFeature(featureLookup, FEATURE_PATCH_WILD_TOMATOES, 100));
 		context.register(PATCH_WILD_CARROTS, createPlacedFeature(featureLookup, FEATURE_PATCH_WILD_CARROTS, 120));
 		context.register(PATCH_WILD_POTATOES, createPlacedFeature(featureLookup, FEATURE_PATCH_WILD_POTATOES, 100));
-		context.register(PATCH_WILD_BEETROOTS, createPlacedFeature(featureLookup, FEATURE_PATCH_WILD_BEETROOTS, 30));
+		context.register(PATCH_WILD_BEETROOTS, createPlacedFeature(featureLookup, FEATURE_PATCH_WILD_BEETROOTS, 25));
 		context.register(PATCH_WILD_RICE, createPlacedFeature(featureLookup, FEATURE_PATCH_WILD_RICE, 20));
 		context.register(PATCH_BROWN_MUSHROOM_COLONIES, createPlacedFeature(featureLookup, FEATURE_PATCH_BROWN_MUSHROOM_COLONIES, 15));
 		context.register(PATCH_RED_MUSHROOM_COLONIES, createPlacedFeature(featureLookup, FEATURE_PATCH_RED_MUSHROOM_COLONIES, 15));

@@ -31,7 +31,7 @@ public class FDAdvancementGenerator implements AdvancementProvider.AdvancementGe
 				.display(ModItems.COOKING_POT.get(),
 						TextUtils.advancement("root.title"),
 						TextUtils.advancement("root.description"),
-						Identifier.parse("minecraft:textures/block/bricks.png"),
+						Identifier.parse("minecraft:block/bricks"),
 						AdvancementType.TASK, false, false, false)
 				.addCriterion("seeds", InventoryChangeTrigger.TriggerInstance.hasItems(new ItemLike[]{}))
 				.save(consumer, getNameId("main/root"));

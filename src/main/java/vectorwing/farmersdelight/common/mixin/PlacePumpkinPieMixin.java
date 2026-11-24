@@ -20,6 +20,10 @@ public class PlacePumpkinPieMixin
 			at = @At("TAIL"),
 			cancellable = true)
 	private void usePumpkinPie(UseOnContext context, CallbackInfoReturnable<InteractionResult> cir) {
+		// BlockItem's failed-placement fallback reuses this context, but has a different receiver.
+		if ((Object) this != Items.PUMPKIN_PIE)
+			return;
+
 		if (!context.getItemInHand().is(Items.PUMPKIN_PIE))
 			return;
 

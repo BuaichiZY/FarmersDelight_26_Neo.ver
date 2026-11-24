@@ -15,6 +15,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.Clearable;
+import net.minecraft.world.Containers;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
@@ -196,14 +197,20 @@ public class CuttingBoardBlockEntity extends SyncedBlockEntity implements Cleara
 		return inventory.extractItem(0, getMaxStackSize(), false);
 	}
 
+	public boolean canCarveToolOnBoard(ItemStack toolStack) {
+		return isEmpty() && !toolStack.isEmpty()
+				&& (toolStack.has(DataComponents.TOOL) || toolStack.getItem() instanceof TridentItem
+						|| toolStack.getItem() instanceof ShearsItem);
+	}
+
 	public boolean carveToolOnBoard(ItemStack toolStack) {
-		if (toolStack.has(DataComponents.TOOL) || toolStack.getItem() instanceof TridentItem || toolStack.getItem() instanceof ShearsItem) {
-			if (addItem(toolStack) == ItemStack.EMPTY) {
-				isItemCarvingBoard = true;
-				return true;
-			}
+		if (!canCarveToolOnBoard(toolStack)) {
+			return false;
 		}
-		return false;
+		// Set the render flag before the inventory change sends the block entity update.
+		isItemCarvingBoard = true;
+		inventory.setStackInSlot(0, toolStack.copyWithCount(1));
+		return true;
 	}
 
 	public ItemInventory getInventory() {
@@ -224,6 +231,16 @@ public class CuttingBoardBlockEntity extends SyncedBlockEntity implements Cleara
 
 	public boolean isItemCarvingBoard() {
 		return isItemCarvingBoard;
+	}
+
+	@Override
+	public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+		// The block entity is already gone when affectNeighborsAfterRemoval runs.
+		if (level instanceof ServerLevel serverLevel) {
+			ItemStack stored = removeItem();
+			Containers.dropItemStack(serverLevel, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stored);
+		}
+		super.preRemoveSideEffects(pos, state);
 	}
 
 	@Override
