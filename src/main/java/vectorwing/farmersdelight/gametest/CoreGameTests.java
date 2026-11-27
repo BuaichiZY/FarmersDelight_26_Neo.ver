@@ -1,6 +1,11 @@
 package vectorwing.farmersdelight.gametest;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -29,6 +34,8 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
 import net.neoforged.neoforge.items.ItemStackHandler;
@@ -46,6 +53,7 @@ import vectorwing.farmersdelight.common.block.OrganicCompostBlock;
 import vectorwing.farmersdelight.common.block.RichSoilBlock;
 import vectorwing.farmersdelight.common.block.RichSoilFarmlandBlock;
 import vectorwing.farmersdelight.common.block.entity.CabinetBlockEntity;
+import vectorwing.farmersdelight.common.block.entity.CuttingBoardBlockEntity;
 import vectorwing.farmersdelight.common.registry.ModBlocks;
 import vectorwing.farmersdelight.common.registry.ModItems;
 import vectorwing.farmersdelight.common.tag.ModTags;
@@ -65,6 +73,9 @@ public final class CoreGameTests
 	private static final ResourceKey<Consumer<GameTestHelper>> ITEM_DATA = functionKey("item_data_and_tags");
 	private static final ResourceKey<Consumer<GameTestHelper>> CABINET_TRANSFER = functionKey("cabinet_transfer_transactions");
 	private static final ResourceKey<Consumer<GameTestHelper>> SOIL_BEHAVIORS = functionKey("soil_behaviors");
+	private static final ResourceKey<Consumer<GameTestHelper>> BOARD_REMOVAL = functionKey("cutting_board_removal");
+	private static final ResourceKey<Consumer<GameTestHelper>> BOARD_TOOL_TRANSFER = functionKey("cutting_board_tool_transfer");
+	private static final ResourceKey<Consumer<GameTestHelper>> ADVANCEMENT_BACKGROUND = functionKey("advancement_background");
 	private static final ResourceKey<Consumer<GameTestHelper>> WILD_WORLDGEN = functionKey("wild_crop_worldgen");
 
 	static {
@@ -72,6 +83,9 @@ public final class CoreGameTests
 		TEST_FUNCTIONS.register("item_data_and_tags", () -> CoreGameTests::testItemDataAndTags);
 		TEST_FUNCTIONS.register("cabinet_transfer_transactions", () -> CoreGameTests::testCabinetTransferTransactions);
 		TEST_FUNCTIONS.register("soil_behaviors", () -> CoreGameTests::testSoilBehaviors);
+		TEST_FUNCTIONS.register("cutting_board_removal", () -> BoardRemovalGameTests::testContentsDropped);
+		TEST_FUNCTIONS.register("cutting_board_tool_transfer", () -> CoreGameTests::testCuttingBoardToolTransfer);
+		TEST_FUNCTIONS.register("advancement_background", () -> AdvancementResourceGameTests::testBackground);
 		TEST_FUNCTIONS.register("wild_crop_worldgen", () -> WorldgenGameTests::testWildCropWorldgen);
 	}
 
@@ -89,6 +103,9 @@ public final class CoreGameTests
 		registerTest(event, environment, "item_data_and_tags", ITEM_DATA);
 		registerTest(event, environment, "cabinet_transfer_transactions", CABINET_TRANSFER);
 		registerTest(event, environment, "soil_behaviors", SOIL_BEHAVIORS);
+		registerTest(event, environment, "cutting_board_removal", BOARD_REMOVAL);
+		registerTest(event, environment, "cutting_board_tool_transfer", BOARD_TOOL_TRANSFER);
+		registerTest(event, environment, "advancement_background", ADVANCEMENT_BACKGROUND);
 		registerTest(event, environment, "wild_crop_worldgen", WILD_WORLDGEN);
 	}
 
@@ -362,6 +379,132 @@ public final class CoreGameTests
 		FarmlandBlock.turnToDirt(null, level.getBlockState(farmlandPos), level, farmlandPos);
 		helper.assertBlockPresent(ModBlocks.RICH_SOIL_FARMLAND.get(), farmlandRelative);
 		helper.succeed();
+	}
+
+	private static void testCuttingBoardToolTransfer(GameTestHelper helper) {
+		BlockPos boardPos = new BlockPos(2, 1, 2);
+		helper.setBlock(boardPos.below(), Blocks.STONE);
+		helper.setBlock(boardPos, ModBlocks.CUTTING_BOARD.get());
+		CuttingBoardBlockEntity board = helper.getBlockEntity(boardPos, CuttingBoardBlockEntity.class);
+		Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+		player.setShiftKeyDown(true);
+
+		for (var tool : java.util.List.of(ModItems.IRON_KNIFE.get(), Items.IRON_PICKAXE, Items.IRON_AXE,
+				Items.IRON_HOE, Items.IRON_SHOVEL, Items.SHEARS, Items.TRIDENT)) {
+			player.getInventory().clearContent();
+			ItemStack original = new ItemStack(tool);
+			original.setDamageValue(7);
+			original.set(DataComponents.CUSTOM_NAME, net.minecraft.network.chat.Component.literal("Board regression"));
+			player.setItemInHand(InteractionHand.MAIN_HAND, original.copy());
+			player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.APPLE));
+			var event = sneakUseBoard(helper, boardPos, player, InteractionHand.MAIN_HAND);
+			helper.assertTrue(event.isCanceled(), "Sneak insertion did not consume the interaction for " + tool);
+			helper.assertTrue(player.getMainHandItem().isEmpty(), "Sneak insertion duplicated the held tool " + tool);
+			helper.assertValueEqual(countMatchingItems(player, original) + board.getStoredItem().getCount(), 1,
+					"total tools after insertion");
+			helper.assertTrue(board.isItemCarvingBoard(), "Inserted tool was not marked for the carved render pose");
+			helper.assertTrue(ItemStack.isSameItemSameComponents(board.getStoredItem(), original),
+					"Tool insertion lost its damage or custom data");
+			helper.assertTrue(player.getOffhandItem().is(Items.APPLE), "Main-hand insertion changed the offhand");
+
+			CuttingBoardBlockEntity synced = new CuttingBoardBlockEntity(board.getBlockPos(), board.getBlockState());
+			synced.loadWithComponents(TagValueInput.create(ProblemReporter.DISCARDING,
+					helper.getLevel().registryAccess(), board.getUpdateTag(helper.getLevel().registryAccess())));
+			helper.assertTrue(synced.isItemCarvingBoard()
+					&& ItemStack.isSameItemSameComponents(synced.getStoredItem(), original),
+					"Block entity update lost the carved pose or stored tool");
+
+			player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.IRON_AXE));
+			var repeated = sneakUseBoard(helper, boardPos, player, InteractionHand.OFF_HAND);
+			helper.assertTrue(!repeated.isCanceled() && player.getOffhandItem().getCount() == 1
+					&& ItemStack.isSameItemSameComponents(board.getStoredItem(), original),
+					"An occupied board accepted another tool");
+			player.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
+			helper.useBlock(boardPos, player);
+			helper.assertTrue(board.isEmpty() && !board.isItemCarvingBoard(), "Tool removal did not clear the board");
+			helper.assertValueEqual(countMatchingItems(player, original), 1, "total tools after removal");
+			player.getInventory().setItem(1, player.getMainHandItem());
+			player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+			helper.useBlock(boardPos, player);
+			helper.assertValueEqual(countMatchingItems(player, original), 1, "total tools after a repeated interaction");
+		}
+
+		player.getInventory().clearContent();
+		player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.IRON_AXE));
+		var offhand = sneakUseBoard(helper, boardPos, player, InteractionHand.OFF_HAND);
+		helper.assertTrue(offhand.isCanceled() && player.getOffhandItem().isEmpty()
+				&& player.getMainHandItem().isEmpty() && board.getStoredItem().is(Items.IRON_AXE),
+				"Offhand insertion did not transfer the correct hand");
+		helper.useBlock(boardPos, player);
+		helper.assertValueEqual(countMatchingItems(player, new ItemStack(Items.IRON_AXE)), 1, "offhand tool after removal");
+
+		player.getInventory().clearContent();
+		board.addItem(new ItemStack(ModItems.TOMATO.get()));
+		player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.IRON_AXE));
+		var occupied = sneakUseBoard(helper, boardPos, player, InteractionHand.MAIN_HAND);
+		helper.assertTrue(!occupied.isCanceled() && player.getMainHandItem().getCount() == 1
+				&& board.getStoredItem().is(ModItems.TOMATO.get()) && !board.isItemCarvingBoard(),
+				"Rejected insertion changed the held tool or board ingredient");
+		board.removeItem();
+		player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.APPLE));
+		var nonTool = sneakUseBoard(helper, boardPos, player, InteractionHand.MAIN_HAND);
+		helper.assertTrue(!nonTool.isCanceled() && board.isEmpty() && player.getMainHandItem().getCount() == 1,
+				"A non-tool was carved into the board");
+
+		player.getInventory().clearContent();
+		ItemStack stackedTool = new ItemStack(Items.STICK, 3);
+		stackedTool.set(DataComponents.TOOL, new ItemStack(Items.IRON_AXE).get(DataComponents.TOOL));
+		player.setItemInHand(InteractionHand.MAIN_HAND, stackedTool.copy());
+		var stacked = sneakUseBoard(helper, boardPos, player, InteractionHand.MAIN_HAND);
+		helper.assertTrue(stacked.isCanceled() && board.getStoredItem().getCount() == 1
+				&& player.getMainHandItem().getCount() == 2, "Stackable tool insertion did not transfer exactly one item");
+		player.getInventory().setItem(1, player.getMainHandItem());
+		player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+		helper.useBlock(boardPos, player);
+		helper.assertValueEqual(countMatchingItems(player, stackedTool), 3, "stackable tools after removal");
+
+
+		board.addItem(stackedTool.copyWithCount(63));
+		player.getInventory().clearContent();
+		player.setItemInHand(InteractionHand.MAIN_HAND, stackedTool.copyWithCount(3));
+		var partial = sneakUseBoard(helper, boardPos, player, InteractionHand.MAIN_HAND);
+		helper.assertTrue(!partial.isCanceled() && board.getStoredItem().getCount() == 63
+				&& player.getMainHandItem().getCount() == 3 && !board.isItemCarvingBoard(),
+				"Partial insertion duplicated a stackable tool or changed an occupied board");
+		helper.assertValueEqual(countMatchingItems(player, stackedTool) + board.getStoredItem().getCount(),
+				66, "total stackable tools after rejected partial insertion");
+		board.removeItem();
+
+		Player creative = helper.makeMockPlayer(GameType.CREATIVE);
+		creative.getAbilities().instabuild = true;
+		creative.setShiftKeyDown(true);
+		creative.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.IRON_AXE));
+		var creativeEvent = sneakUseBoard(helper, boardPos, creative, InteractionHand.MAIN_HAND);
+		helper.assertTrue(creativeEvent.isCanceled() && creative.getMainHandItem().getCount() == 1
+				&& board.getStoredItem().getCount() == 1 && board.isItemCarvingBoard(),
+				"Creative insertion consumed its tool or stored multiple tools");
+		creative.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+		helper.useBlock(boardPos, creative);
+		helper.assertTrue(board.isEmpty() && !board.isItemCarvingBoard(), "Creative removal did not clear the board");
+		helper.succeed();
+	}
+
+	private static PlayerInteractEvent.RightClickBlock sneakUseBoard(GameTestHelper helper, BlockPos relativePos,
+			Player player, InteractionHand hand) {
+		BlockPos pos = helper.absolutePos(relativePos);
+		var event = new PlayerInteractEvent.RightClickBlock(player, hand, pos,
+				new BlockHitResult(new Vec3(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5), Direction.UP, pos, false));
+		NeoForge.EVENT_BUS.post(event);
+		return event;
+	}
+
+	private static int countMatchingItems(Player player, ItemStack expected) {
+		int count = 0;
+		for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+			ItemStack stack = player.getInventory().getItem(slot);
+			if (ItemStack.isSameItemSameComponents(stack, expected)) count += stack.getCount();
+		}
+		return count;
 	}
 
 	private static RecipeHolder<?> requireRecipe(GameTestHelper helper, RecipeManager recipes, String path) {
