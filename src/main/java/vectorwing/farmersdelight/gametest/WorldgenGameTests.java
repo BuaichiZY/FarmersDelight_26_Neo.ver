@@ -35,6 +35,7 @@ final class WorldgenGameTests {
                 new Crop("wild_tomatoes", ModBlocks.WILD_TOMATOES.get(), Blocks.SAND, Biomes.DESERT, false),
                 new Crop("wild_cabbages", ModBlocks.WILD_CABBAGES.get(), Blocks.SAND, Biomes.BEACH, false),
                 new Crop("wild_beetroots", ModBlocks.WILD_BEETROOTS.get(), Blocks.SAND, Biomes.BEACH, false),
+                new Crop("wild_beetroots", ModBlocks.WILD_BEETROOTS.get(), Blocks.SAND, Biomes.SNOWY_BEACH, false),
                 new Crop("wild_rice", ModBlocks.WILD_RICE.get(), Blocks.MUD, Biomes.SWAMP, true),
                 new Crop("brown_mushroom_colony", ModBlocks.BROWN_MUSHROOM_COLONY.get(), Blocks.MYCELIUM, Biomes.MUSHROOM_FIELDS, false),
                 new Crop("red_mushroom_colony", ModBlocks.RED_MUSHROOM_COLONY.get(), Blocks.MYCELIUM, Biomes.MUSHROOM_FIELDS, false));
